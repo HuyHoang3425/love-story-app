@@ -2,12 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 
-const router = require('./routes');
+const router = require('./routes/admin');
 const { response } = require('./utils');
 const { errorConverter, errorHandler } = require('./middlewares');
 const { env, logger, connectDB, morganMiddleware } = require('./config');
 
 const app = express();
+
+const routerAdmin = require('./routes/admin/index');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,11 +22,10 @@ if (env.server.nodeEnv === 'development') {
   logger.info('Running in development mode');
 }
 
-app.use('/api/v1', router);
+//Router
+routerAdmin(app);
 
-app.get('/', (req, res) => {
-  res.send('Backend Server for Love Story App is running!');
-});
+
 
 app.get('/health', (req, res) => {
   res.status(StatusCodes.OK).json(

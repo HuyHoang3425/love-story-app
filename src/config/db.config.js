@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const env = require('./env.config');
 const logger = require('./logger.config');
 
