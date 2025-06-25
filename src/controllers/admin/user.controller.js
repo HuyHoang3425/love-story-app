@@ -36,18 +36,14 @@ const getUsers = catchAsync(async (req, res) => {
 const createUser = catchAsync(async (req, res) => {
   const { email, password, nickname } = req.body;
 
-  const hashedPassword = md5(password);
-
   const coupleCode = customAlphabet('1234567890',6);
 
   const user = await User.create({
     email,
-    password: hashedPassword,
+    password,
     nickname,
     coupleCode: coupleCode(),
   });
-
-  await user.save();
 
   res.status(httpStatus.StatusCodes.CREATED).json({
     message: 'Tạo người dùng thành công',
@@ -55,13 +51,11 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 
-//[POST] admin/user/update/:id
-const updateUser = catchAsync(async (req, res) => {
+//[PATCH] admin/user/:id
+const updateUserPart = catchAsync(async (req, res) => {
   const { email, password, nickname } = req.body;
   const id = req.params.id;
   const user = await User.findOne({ _id: id });
-
-  const hashedPassword = password ? md5(password) : user.password;
 
   await User.updateOne(
     {
@@ -69,7 +63,7 @@ const updateUser = catchAsync(async (req, res) => {
     },
     {
       email: email || user.email,
-      password: hashedPassword,
+      password:password || user.password,
       nickname: nickname || user.nickname,
     },
   );
@@ -81,7 +75,30 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
-//[delete] admin/user/delete/:id
+//[PATCH] admin/user/:id
+const updateUserFull = catchAsync(async (req, res) => {
+  const { email, password, nickname } = req.body;
+  const id = req.params.id;
+
+  await User.updateOne(
+    {
+      _id: id,
+    },
+    {
+      email,
+      password,
+      nickname,
+    },
+  );
+
+  const updatedUser = await User.findById(id);
+  res.status(httpStatus.StatusCodes.OK).json({
+    message: 'Cập nhật người dùng thành công',
+    data: updatedUser,
+  });
+});
+
+//[DELETE] admin/user/:id
 const deleteUser = catchAsync(async (req, res) => {
   const id = req.params.id;
 
@@ -130,7 +147,8 @@ const statusUser = catchAsync(async (req, res) => {
 module.exports = {
   getUsers,
   createUser,
-  updateUser,
+  updateUserPart,
+  updateUserFull,
   deleteUser,
   statusUser,
 };

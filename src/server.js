@@ -2,14 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 
-const router = require('./routes/admin');
+const router = require('./routes');
 const { response } = require('./utils');
 const { errorConverter, errorHandler } = require('./middlewares');
 const { env, logger, connectDB, morganMiddleware } = require('./config');
 
 const app = express();
-
-const routerAdmin = require('./routes/admin/index');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +21,7 @@ if (env.server.nodeEnv === 'development') {
 }
 
 //Router
-routerAdmin(app);
+app.use("/api/v1",router);
 
 
 

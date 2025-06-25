@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-const url = 'mongodb://localhost:27017/mydatabase';
 const env = {
   server: {
     nodeEnv: process.env.NODE_ENV || 'development',
@@ -8,7 +7,7 @@ const env = {
     port: process.env.PORT || 3000,
   },
   mongo: {
-    uri: process.env.MONGO_URI,
+    uri: process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase',
   },
 };
 

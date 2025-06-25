@@ -1,13 +1,15 @@
+
 const express = require('express');
+const router = express.Router();
 const system = require('../../config/system');
 const userRouter = require('./user.routes');
 
 const PATH_ADMIN = system.prefixAdmin;
 
-module.exports = (app) => {
-  app.get(PATH_ADMIN, (req, res) => {
+  router.get(PATH_ADMIN, (req, res) => {
     res.send('Welcome to the Admin API!');
   });
 
-  app.use(PATH_ADMIN + '/user', userRouter);
-};
+  router.use(PATH_ADMIN + '/user', userRouter);
+
+module.exports = router;
