@@ -4,7 +4,7 @@ const catchAsync = require('../../utils/catchAsync');
 const User = require('../../models/user.model');
 const md5 = require('md5');
 const paginationHelper = require('../../helper/pagination');
-const pagination = require('../../helper/pagination');
+const { customAlphabet } = require('nanoid');;
 
 //[GET] admin/user
 const getUsers = catchAsync(async (req, res) => {
@@ -38,10 +38,13 @@ const createUser = catchAsync(async (req, res) => {
 
   const hashedPassword = md5(password);
 
+  const coupleCode = customAlphabet('1234567890',6);
+
   const user = await User.create({
     email,
     password: hashedPassword,
     nickname,
+    coupleCode: coupleCode(),
   });
 
   await user.save();
