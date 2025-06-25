@@ -3,10 +3,25 @@ const ApiError = require('../../utils/ApiError');
 const catchAsync = require('../../utils/catchAsync');
 const User = require('../../models/user.model');
 const md5 = require('md5');
+const paginationHelper = require('../../helper/pagination');
+const pagination = require('../../helper/pagination');
 
 //[GET] admin/user
 const getUsers = catchAsync(async (req, res) => {
-  const users = await User.find();
+  // [GET] /admin/user?page=2(phân trang)
+  const page = req.query.page;
+  const limit = req.query.limit;
+  const total = await User.countDocuments();
+  let objectPagination = paginationHelper(
+    {
+      currentPage: 1,
+      limit:5,
+    },
+    req.query,
+    total,
+  );
+  const users = await User.find().limit(objectPagination.limit).skip(objectPagination.skip);
+
   if (users.length === 0) {
     throw new ApiError(httpStatus.StatusCodes.NOT_FOUND, 'Không tìm thấy người dùng');
   }
@@ -14,6 +29,7 @@ const getUsers = catchAsync(async (req, res) => {
   res.status(httpStatus.StatusCodes.OK).json({
     message: 'Lấy danh sách người dùng thành công',
     data: users,
+    pagination:objectPagination,
   });
 });
 //[POST] admin/user
