@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { UserConstant } = require('../constants')
+const { UserConstants } = require('../constants')
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,8 +34,8 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: UserConstant.GENDER,
-      default: UserConstant.GENDER.OTHER
+      enum: UserConstants.GENDER,
+      default: UserConstants.GENDER.OTHER
     },
     dateOfBirth: {
       type: Date
@@ -55,8 +55,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: UserConstant.ROLE,
-      default: UserConstant.ROLE.USER
+      enum: UserConstants.ROLE,
+      default: UserConstants.ROLE.USER
     }
   },
   {

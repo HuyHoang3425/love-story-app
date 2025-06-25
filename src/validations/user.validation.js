@@ -1,6 +1,6 @@
 const joi = require('joi')
 
-const { UserConstant } = require('../constants')
+const { UserConstants } = require('../constants')
 const { objectId } = require('./custom.validation')
 
 const createUser = {
@@ -11,7 +11,7 @@ const createUser = {
     firstName: joi.string().optional().allow(''),
     lastName: joi.string().optional().allow(''),
     nickname: joi.string().optional().allow(''),
-    gender: joi.string().valid(...Object.values(UserConstant.GENDER)),
+    gender: joi.string().valid(...Object.values(UserConstants.GENDER)),
     dateOfBirth: joi.date().optional().allow(null),
     avatar: joi.string().optional().allow(''),
     coupleCode: joi.string().optional().allow('')
@@ -41,7 +41,7 @@ const updateUser = {
     firstName: joi.string().optional().allow(''),
     lastName: joi.string().optional().allow(''),
     nickname: joi.string().optional().allow(''),
-    gender: joi.string().valid(...Object.values(UserConstant.GENDER)),
+    gender: joi.string().valid(...Object.values(UserConstants.GENDER)),
     dateOfBirth: joi.date().optional().allow(null),
     avatar: joi.string().optional().allow('')
   })
