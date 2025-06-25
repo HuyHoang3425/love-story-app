@@ -1,5 +1,5 @@
 module.exports = {
-  ...require('./catchAsync'),
+  catchAsync: require('./catchAsync'),
   ApiError: require('./ApiError'),
-  response: require('./response'),
-};
+  response: require('./response')
+}
