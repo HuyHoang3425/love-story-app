@@ -1,3 +1,34 @@
-/node_modules
-.env
-/logs
+# Dependencies
+node_modules
+
+# yarn error logs
+yarn-error.log
+
+# Environment varibales
+.env*
+!.env*.example
+
+# Code coverage
+coverage
+
+# misc
+.DS_Store
+
+# Dev db data
+db
+backup
+
+# TypeScript
+build
+dist
+
+# Log
+logs
+
+# Static
+uploads/*
+images/*
+static/*
+errors/*
+docker/*
+logs/*
