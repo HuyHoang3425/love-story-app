@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 const { UserConstants } = require('../constants')
+const bcrypt = require('bcrypt')
+
+const generateNumber = require('../utils/generate');
 
 const userSchema = new mongoose.Schema(
   {
@@ -63,5 +66,21 @@ const userSchema = new mongoose.Schema(
     timestamps: true
   }
 )
+
+userSchema.pre('save',async function(next){
+  if(this.isModified('password')){
+    const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
+    this.password = await bcrypt.hash(this.password,saltRounds);
+  }
+  if (!this.coupleCode) {
+    let isUnique = false;
+    while (!isUnique) {
+      this.coupleCode = generateNumber.generateNumber(6);
+      const user = await this.constructor.findOne({ coupleCode: this.coupleCode });
+      if (!user) isUnique = true;
+    }
+  }
+  next();
+})
 
 module.exports = mongoose.model('User', userSchema)
