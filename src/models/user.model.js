@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const { UserConstants } = require('../constants')
 const bcrypt = require('bcrypt')
 
+const { UserConstants } = require('../constants')
 const generateNumber = require('../utils/generate');
 
 const userSchema = new mongoose.Schema(
@@ -51,7 +51,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    // TODO: generate couple code when user is created
     coupleCode: {
       type: String,
       unique: true
