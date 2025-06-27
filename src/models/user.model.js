@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const env = require('../config/env.config')
+
 
 const { UserConstants } = require('../constants')
 const generateNumber = require('../utils/generate');
@@ -68,7 +70,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save',async function(next){
   if(this.isModified('password')){
-    const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
+    const saltRounds = env.bcrypt.saltRounds;;
     this.password = await bcrypt.hash(this.password,saltRounds);
   }
   if (!this.coupleCode) {
