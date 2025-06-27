@@ -1,1 +1,3 @@
-module.exports = {};
+module.exports = {
+  UserConstants: require('./user.constant')
+}

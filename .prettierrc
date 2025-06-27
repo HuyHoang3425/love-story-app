@@ -10,19 +10,10 @@
   "bracketSameLine": false,
   "bracketSpacing": true,
   "embeddedLanguageFormatting": "auto",
-  "htmlWhitespaceSensitivity": "css",
   "insertPragma": false,
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "requirePragma": false,
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "overrides": [
-    {
-      "files": "*.ejs",
-      "options": {
-        "parser": "html"
-      }
-    }
-  ]
+  "importOrderSortSpecifiers": true
 }
