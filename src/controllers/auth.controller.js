@@ -111,9 +111,26 @@ const login = catchAsync( async (req,res) =>{
 
 })
 
+const changePassword = catchAsync(async(req,res) =>{
+  const { password, repeatPassword } = req.body
+  const id = req.user.id;
+  const user = await User.findById(id)
+  if (password !== repeatPassword) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập lại mật khẩu không khớp.')
+  }
+  const isPasswordMatch = await bcrypt.compare(password,user.password)
+  if(isPasswordMatch){
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng nhập mật khẩu khác.')
+  }
+  user.password = password
+  await user.save()
+  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
+  
+})
 
 module.exports = {
   register,
   confirmOtp,
   login,
+  changePassword
 }

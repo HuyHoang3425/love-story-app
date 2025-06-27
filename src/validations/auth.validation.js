@@ -16,7 +16,13 @@ const login = {
     password: joi.string().min(6).required()
   })
 }
+
+const changePassword = {
+  password: joi.string().min(6).required(),
+  repeatPassword: joi.string().min(6).required()
+}
 module.exports = {
   register,
-  login
+  login,
+  changePassword
 }
