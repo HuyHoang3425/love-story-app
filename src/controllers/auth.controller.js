@@ -1,10 +1,13 @@
 const { User} = require('../models')
+const bcrypt = require('bcrypt')
 const { StatusCodes } = require('http-status-codes')
+
 
 const { catchAsync, ApiError, response } = require('../utils')
 
 const { generate, jwt } = require('../utils')
 const { SendMail } = require('../services')
+const { env } = require('../config')
 
 const register = catchAsync(async (req, res) => {
   const { username, email, password, repeatPassword } = req.body
@@ -35,8 +38,8 @@ const register = catchAsync(async (req, res) => {
     otp,
     isVerifiedToken: false
   }
-
-  const tokenOtp = jwt.generateToken(payload)
+  const time = env.jwt.otp;
+  const tokenOtp = jwt.generateToken(payload,time)
   payload.tokenOtp = tokenOtp
 
   const subject = 'Mã xác nhận OTP'
@@ -88,7 +91,29 @@ const confirmOtp = catchAsync(async (req, res) => {
   }
 })
 
+
+const login = catchAsync( async (req,res) =>{
+  const {email,password} = req.body;
+
+  const user = await User.findOne({email:email})
+
+  if (!user) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc Password không chính xác.')
+  }
+
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+  if (!isPasswordMatch) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc Password không chính xác.')
+  }
+  const time = env.jwt.login
+  const token = jwt.generateToken(req.body,time)
+  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
+
+})
+
+
 module.exports = {
   register,
-  confirmOtp
+  confirmOtp,
+  login,
 }
