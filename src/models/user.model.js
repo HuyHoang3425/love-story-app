@@ -61,7 +61,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
-    }
+    },
+    tokenOtp: String,
+    isVerifiedToken:{
+      type:Boolean,
+      default:true,
+    },
   },
   {
     timestamps: true

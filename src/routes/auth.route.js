@@ -7,6 +7,6 @@ const { AuthValidation } = require('../validations/index');
 
 authRouter.post("/register",validate(AuthValidation.register),AuthController.register)
 
-authRouter.post('/confirmOtp', AuthController.comfirmOtp)
+authRouter.post('/confirmOtp', AuthController.confirmOtp)
 
 module.exports = authRouter

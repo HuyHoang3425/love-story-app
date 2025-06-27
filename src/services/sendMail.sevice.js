@@ -24,10 +24,8 @@ const sendMail = (email, subject, otp, username) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('❌ Lỗi khi gửi email:', error)
         resolve(false) // ✅ Trả về false
       } else {
-        console.log('✅ Email đã được gửi:', info.response)
         resolve(true) // ✅ Trả về true
       }
     })

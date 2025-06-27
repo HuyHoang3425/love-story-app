@@ -3,4 +3,5 @@ module.exports = {
   ApiError: require('./ApiError'),
   response: require('./response'),
   generate: require('./generate'),
+  jwt: require('./jwt'),
 }
