@@ -18,11 +18,20 @@ const login = {
 }
 
 const changePassword = {
-  password: joi.string().min(6).required(),
-  repeatPassword: joi.string().min(6).required()
+  body: joi.object({
+    password: joi.string().min(6).required(),
+    repeatPassword: joi.string().min(6).required()
+  })
+}
+
+const forgotPassword = {
+  body: joi.object({
+    email: joi.string().email().required(),
+  })
 }
 module.exports = {
   register,
   login,
-  changePassword
+  changePassword,
+  forgotPassword
 }

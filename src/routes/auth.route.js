@@ -7,10 +7,15 @@ const { AuthValidation } = require('../validations/index');
 
 authRouter.post('/register',validate(AuthValidation.register),AuthController.register)
 
-authRouter.post('/confirmOtp', AuthController.confirmOtp)
+authRouter.post('/register/confirm-otp', AuthController.confirmOtpRegister)
 
 authRouter.post('/login', validate(AuthValidation.login), AuthController.login)
 
-authRouter.post('/change-password',auth,AuthController.changePassword)
+authRouter.post('/change-password',auth,validate(AuthValidation.changePassword),AuthController.changePassword)
+
+authRouter.post('/forgot-password',validate(AuthValidation.forgotPassword),AuthController.forgotPassword)
+
+authRouter.post('/forgot-password/confirm-otp', AuthController.confirmOtpForgotPassword)
+
 
 module.exports = authRouter
