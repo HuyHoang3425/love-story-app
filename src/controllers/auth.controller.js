@@ -7,6 +7,7 @@ const { catchAsync, ApiError, response } = require('../utils')
 const { generate, jwt } = require('../utils')
 const { SendMail } = require('../services')
 const { env } = require('../config')
+const { verifyToken } = require('../utils/jwt')
 
 const register = catchAsync(async (req, res) => {
   const { username, email, password, repeatPassword } = req.body
@@ -109,17 +110,21 @@ const login = catchAsync(async (req, res) => {
 })
 
 const changePassword = catchAsync(async (req, res) => {
-  const { password, repeatPassword } = req.body
+  const { password, newPassword, repeatNewPassword } = req.body
   const id = req.user.id
   const user = await User.findById(id)
-  if (password !== repeatPassword) {
+  const isPasswordMatch = await bcrypt.compare(password, user.password)
+  if (!isPasswordMatch) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập mật khẩu không chính xác.')
+  }
+  if (newPassword !== repeatNewPassword) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập lại mật khẩu không khớp.')
   }
-  const isPasswordMatch = await bcrypt.compare(password, user.password)
-  if (isPasswordMatch) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng nhập mật khẩu khác.')
+  const isNewPasswordMatch = await bcrypt.compare(newPassword, user.password)
+  if (isNewPasswordMatch) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng không sử dụng mật khẩu trước đó.')
   }
-  user.password = password
+  user.password = newPassword
   await user.save()
   res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
 })
@@ -132,14 +137,14 @@ const forgotPassword = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Email chưa được đăng ký tài khoản.')
   }
   const time = env.jwt.otp
-  const tokenOtp = jwt.generateToken({email:user.email,otp:otp}, time)
+  const tokenOtp = jwt.generateToken({ email: user.email, otp: otp }, time)
   const subject = 'Mã xác nhận OTP'
   const sent = await SendMail(email, subject, otp, user.username)
 
   if (!sent) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Gửi OTP không thành công.')
   }
-  await User.updateOne({ _id: user.id }, {tokenOtp:tokenOtp})
+  await User.updateOne({ _id: user.id }, { tokenOtp: tokenOtp })
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đã gửi OTP thành công.', { email }))
 })
@@ -158,7 +163,7 @@ const confirmOtpForgotPassword = catchAsync(async (req, res) => {
 
   const checkExpire = jwt.isTokenExpired(user.tokenOtp)
   if (checkExpire) {
-    await User.updateOne({ tokenOtp:""})
+    await User.updateOne({ tokenOtp: '' })
     throw new ApiError(StatusCodes.BAD_REQUEST, 'OTP hết hạn.')
   }
 
@@ -168,9 +173,26 @@ const confirmOtpForgotPassword = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập mã OTP sai.')
   } else {
     const time = env.jwt.login
-    const token = jwt.generateToken({email:user.email,password:user.password}, time)
+    const token = jwt.generateToken({ email: user.email, password: user.password }, time)
     res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Nhập OTP đúng.', token))
   }
+})
+
+const resetPassword = catchAsync(async (req, res) => {
+  const { newPassword, repeatNewPassword} = req.body
+  const token = jwt.extractToken(req)
+  const payload = jwt.verifyToken(token)
+  const user = await User.findOne({email:payload.email})
+  if (newPassword !== repeatNewPassword) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập lại mật khẩu không khớp.')
+  }
+  const isNewPasswordMatch = await bcrypt.compare(newPassword, user.password)
+  if (isNewPasswordMatch) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng không sử dụng mật khẩu trước đó.')
+  }
+  user.password = newPassword
+  await user.save()
+  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
 })
 module.exports = {
   register,
@@ -178,5 +200,6 @@ module.exports = {
   login,
   changePassword,
   forgotPassword,
-  confirmOtpForgotPassword
+  confirmOtpForgotPassword,
+  resetPassword
 }

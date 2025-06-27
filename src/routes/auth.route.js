@@ -17,5 +17,8 @@ authRouter.post('/forgot-password',validate(AuthValidation.forgotPassword),AuthC
 
 authRouter.post('/forgot-password/confirm-otp', AuthController.confirmOtpForgotPassword)
 
+authRouter.post('/forgot-password/reset-password', AuthController.resetPassword)
+
+
 
 module.exports = authRouter

@@ -20,7 +20,8 @@ const login = {
 const changePassword = {
   body: joi.object({
     password: joi.string().min(6).required(),
-    repeatPassword: joi.string().min(6).required()
+    newPassword: joi.string().min(6).required(),
+    repeatNewPassword: joi.string().min(6).required()
   })
 }
 
