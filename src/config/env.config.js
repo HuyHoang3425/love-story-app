@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 
 const env = {
   server: {
@@ -18,9 +18,9 @@ const env = {
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    login:process.env.JWT_EXPIRESIN_LOGIN,
-    otp:process.env.JWT_EXPIRESIN_OTP
+    login: process.env.JWT_EXPIRESIN_LOGIN,
+    otp: process.env.JWT_EXPIRESIN_OTP
   }
 }
 
-module.exports = env;
+module.exports = env

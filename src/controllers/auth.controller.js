@@ -179,10 +179,10 @@ const confirmOtpForgotPassword = catchAsync(async (req, res) => {
 })
 
 const resetPassword = catchAsync(async (req, res) => {
-  const { newPassword, repeatNewPassword} = req.body
+  const { newPassword, repeatNewPassword } = req.body
   const token = jwt.extractToken(req)
   const payload = jwt.verifyToken(token)
-  const user = await User.findOne({email:payload.email})
+  const user = await User.findOne({ email: payload.email })
   if (newPassword !== repeatNewPassword) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập lại mật khẩu không khớp.')
   }
@@ -194,6 +194,34 @@ const resetPassword = catchAsync(async (req, res) => {
   await user.save()
   res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
 })
+
+const profile = catchAsync(async (req, res) => {
+  const { email } = req.user
+  const user = await User.findOne({ email: email }).select('-password')
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
+  }
+  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', user))
+})
+
+const editProfile = catchAsync(async (req, res) => {
+  const email = req.user.email
+  const user = await User.findOne({ email: email })
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
+  }
+  if (!req.body || Object.keys(req.body).length === 0) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng điền đầy đủ thông tin.')
+  }
+  delete req.body.email
+  const userUpdate = await User.findByIdAndUpdate(user.id, req.body, {
+    new: true,
+    runValidators: true
+  }).select('-password')
+  res
+    .status(StatusCodes.CREATED)
+    .json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
+})
 module.exports = {
   register,
   confirmOtpRegister,
@@ -201,5 +229,7 @@ module.exports = {
   changePassword,
   forgotPassword,
   confirmOtpForgotPassword,
-  resetPassword
+  resetPassword,
+  profile,
+  editProfile
 }

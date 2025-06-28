@@ -1,5 +1,6 @@
 const joi = require('joi')
 
+const { UserConstants } = require('../constants')
 
 const register = {
   body: joi.object({
@@ -27,12 +28,25 @@ const changePassword = {
 
 const forgotPassword = {
   body: joi.object({
-    email: joi.string().email().required(),
+    email: joi.string().email().required()
+  })
+}
+
+const editProfile = {
+  body: joi.object({
+    username: joi.string(),
+    firstName: joi.string().optional().allow(''),
+    lastName: joi.string().optional().allow(''),
+    nickname: joi.string().optional().allow(''),
+    gender: joi.string().valid(...Object.values(UserConstants.GENDER)),
+    dateOfBirth: joi.date().optional().allow(null),
+    avatar: joi.string().optional().allow('')
   })
 }
 module.exports = {
   register,
   login,
   changePassword,
-  forgotPassword
+  forgotPassword,
+  editProfile
 }

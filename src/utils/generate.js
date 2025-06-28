@@ -4,5 +4,5 @@ module.exports.generateNumber = (lenght) => {
   for (let i = 0; i < lenght; i++) {
     result += number.charAt(Math.floor(Math.random() * number.length))
   }
-  return result;
+  return result
 }

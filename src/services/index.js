@@ -1,3 +1,3 @@
 module.exports = {
-  SendMail: require('./sendMail.sevice'),
+  SendMail: require('./sendMail.sevice')
 }

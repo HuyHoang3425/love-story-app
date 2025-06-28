@@ -2,8 +2,8 @@ const response = (statusCode, message, data = null) => {
   return {
     statusCode,
     message,
-    ...(data !== null ? { data } : {}),
-  };
-};
+    ...(data !== null ? { data } : {})
+  }
+}
 
-module.exports = response;
+module.exports = response
