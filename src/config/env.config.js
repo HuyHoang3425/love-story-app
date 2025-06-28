@@ -20,6 +20,11 @@ const env = {
     secret: process.env.JWT_SECRET,
     login: process.env.JWT_EXPIRESIN_LOGIN,
     otp: process.env.JWT_EXPIRESIN_OTP
+  },
+  cloudinary: {
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_setcret: process.env.API_SECRET
   }
 }
 

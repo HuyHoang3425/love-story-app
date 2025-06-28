@@ -1,7 +1,9 @@
 const express = require('express')
 const authRouter = express.Router()
+const multer = require('multer')
 
-const { validate, auth } = require('../middlewares')
+const upload = multer()
+const { validate, auth, uploadCloudinary } = require('../middlewares')
 const { AuthController } = require('../controllers')
 const { AuthValidation } = require('../validations/index')
 
@@ -21,6 +23,13 @@ authRouter.post('/forgot-password/reset-password', AuthController.resetPassword)
 
 authRouter.get('/profile', auth, AuthController.profile)
 
-authRouter.post('/profile', auth, validate(AuthValidation.editProfile), AuthController.editProfile)
+authRouter.post(
+  '/profile',
+  auth,
+  validate(AuthValidation.editProfile),
+  upload.single('avatar'),
+  uploadCloudinary,
+  AuthController.editProfile
+)
 
 module.exports = authRouter
