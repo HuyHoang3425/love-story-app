@@ -7,7 +7,6 @@ const { catchAsync, ApiError, response } = require('../utils')
 const { generate, jwt } = require('../utils')
 const { SendMail } = require('../services')
 const { env } = require('../config')
-const { verifyToken } = require('../utils/jwt')
 
 const register = catchAsync(async (req, res) => {
   const { username, email, password, repeatPassword } = req.body
@@ -21,11 +20,11 @@ const register = catchAsync(async (req, res) => {
   })
 
   if (existingUser) {
-    if (existingUser.email === email && existingUser.isVerifiedToken) {
+    if (existingUser.email === email && existingUser.isVerified) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Email đã tồn tại.')
     }
 
-    if (existingUser.username === username && existingUser.isVerifiedToken) {
+    if (existingUser.username === username && existingUser.isVerified) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Username đã tồn tại.')
     }
   }
@@ -33,14 +32,11 @@ const register = catchAsync(async (req, res) => {
   const otp = generate.generateNumber(4)
   const payload = {
     email,
-    password,
     username,
-    otp,
-    isVerifiedToken: false
+    otp
   }
   const time = env.jwt.otp
   const tokenOtp = jwt.generateToken(payload, time)
-  payload.tokenOtp = tokenOtp
 
   const subject = 'Mã xác nhận OTP'
   const sent = await SendMail(email, subject, otp, username)
@@ -49,45 +45,51 @@ const register = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Gửi OTP không thành công.')
   }
 
-  if (existingUser && !existingUser.isVerifiedToken) {
-    await User.updateOne({ _id: existingUser.id }, payload)
+  if (existingUser && !existingUser.isVerified) {
+    await User.updateOne({ _id: existingUser.id }, { tokenOtp: tokenOtp })
   } else {
-    await User.create(payload)
+    await User.create({
+      email,
+      password,
+      username,
+      tokenOtp
+    })
   }
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đã gửi OTP thành công.', { email }))
 })
 
-const confirmOtpRegister = catchAsync(async (req, res) => {
-  const { email, otp } = req.body
-
+const confirmOtp = catchAsync(async (req, res) => {
+  const { otp, email, type } = req.body
   const user = await User.findOne({ email: email })
-
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy user với email này.')
   }
-
   if (!user.tokenOtp) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy OTP token.')
   }
-
   const checkExpire = jwt.isTokenExpired(user.tokenOtp)
   if (checkExpire) {
-    await User.deleteOne({ email: user.email })
     throw new ApiError(StatusCodes.BAD_REQUEST, 'OTP hết hạn.')
   }
-
   const payload = jwt.verifyToken(user.tokenOtp)
   if (payload.otp !== otp) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập mã OTP sai.')
-  } else {
-    const updatedUser = await User.findOneAndUpdate(
+  }
+  if (type === 'register' || !user.isVerified) {
+    await User.updateOne(
       { email: user.email },
-      { isVerifiedToken: true, tokenOtp: '' },
-      { new: true }
+      {
+        isVerified: true,
+        tokenOtp: null
+      }
     )
-
-    res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Đăng ký thành công.', updatedUser))
+    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.'))
+  } else if (type === 'forgot-password' || user.isVerified) {
+    await User.updateOne({ email: user.email }, { otpVerified: true })
+    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực OTP thành công. Bạn có thể đổi mật khẩu.'))
+  } else {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Loại xác thực không hợp lệ.')
   }
 })
 
@@ -144,45 +146,32 @@ const forgotPassword = catchAsync(async (req, res) => {
   if (!sent) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Gửi OTP không thành công.')
   }
-  await User.updateOne({ _id: user.id }, { tokenOtp: tokenOtp })
-
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đã gửi OTP thành công.', { email }))
-})
-
-const confirmOtpForgotPassword = catchAsync(async (req, res) => {
-  const { email, otp } = req.body
-  const user = await User.findOne({ email: email })
-
-  if (!user) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy user với email này.')
-  }
-
-  if (!user.tokenOtp) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy OTP token.')
-  }
-
-  const checkExpire = jwt.isTokenExpired(user.tokenOtp)
-  if (checkExpire) {
-    await User.updateOne({ tokenOtp: '' })
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'OTP hết hạn.')
-  }
-
-  const payload = jwt.verifyToken(user.tokenOtp)
-  console.log(payload.otp)
-  if (payload.otp != otp) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập mã OTP sai.')
-  } else {
-    const time = env.jwt.login
-    const token = jwt.generateToken({ email: user.email, password: user.password }, time)
-    res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Nhập OTP đúng.', token))
-  }
+  await User.updateOne(
+    { _id: user.id },
+    {
+      tokenOtp: tokenOtp,
+      otpVerified: false
+    }
+  )
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đã gửi OTP đặt lại mật khẩu.', { email }))
 })
 
 const resetPassword = catchAsync(async (req, res) => {
-  const { newPassword, repeatNewPassword } = req.body
-  const token = jwt.extractToken(req)
-  const payload = jwt.verifyToken(token)
-  const user = await User.findOne({ email: payload.email })
+  const { email, newPassword, repeatNewPassword } = req.body
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy người dùng.')
+  }
+  if (!user.otpVerified) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng xác thực OTP trước khi đổi mật khẩu.')
+  }
+  if (!user.tokenOtp) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy OTP token.')
+  }
+  const checkExpire = jwt.isTokenExpired(user.tokenOtp)
+  if (checkExpire) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'OTP hết hạn. Vui lòng yêu cầu OTP mới.')
+  }
   if (newPassword !== repeatNewPassword) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập lại mật khẩu không khớp.')
   }
@@ -191,8 +180,10 @@ const resetPassword = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng không sử dụng mật khẩu trước đó.')
   }
   user.password = newPassword
+  user.tokenOtp = null
+  user.otpVerified = false
   await user.save()
-  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
+  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Đặt lại mật khẩu thành công.'))
 })
 
 const profile = catchAsync(async (req, res) => {
@@ -201,7 +192,7 @@ const profile = catchAsync(async (req, res) => {
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
   }
-  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', user))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', user))
 })
 
 const editProfile = catchAsync(async (req, res) => {
@@ -224,11 +215,10 @@ const editProfile = catchAsync(async (req, res) => {
 })
 module.exports = {
   register,
-  confirmOtpRegister,
+  confirmOtp,
   login,
   changePassword,
   forgotPassword,
-  confirmOtpForgotPassword,
   resetPassword,
   profile,
   editProfile

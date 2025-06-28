@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    otpVerified: {
+      type: Boolean,
+      default: false
+    },
     coupleCode: {
       type: String,
       unique: true
@@ -61,11 +65,7 @@ const userSchema = new mongoose.Schema(
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
     },
-    tokenOtp: String,
-    isVerifiedToken: {
-      type: Boolean,
-      default: true
-    }
+    tokenOtp: String
   },
   {
     timestamps: true
