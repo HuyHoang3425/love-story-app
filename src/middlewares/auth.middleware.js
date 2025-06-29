@@ -8,11 +8,11 @@ const { env } = require('../config')
 const auth = catchAsync(async (req, res, next) => {
   const token = jwt.extractToken(req)
   if (!token) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập!')
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'vui lòng đăng nhập!')
   }
   const secretLogin = env.jwt.secret_login
   const payload = jwt.verifyToken(token, secretLogin)
-  const user = await User.findOne({ email: payload.email })
+  const user = await User.findById({ _id: payload.id })
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'người dùng không tồn tại!')
   }

@@ -98,7 +98,7 @@ const login = catchAsync(async (req, res) => {
   }
   const time = env.jwt.login
   const secret_login = env.jwt.secret_login
-  const token = jwt.generateToken(req.body, secret_login, time)
+  const token = jwt.generateToken({id:user.id}, secret_login, time)
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
 })
 

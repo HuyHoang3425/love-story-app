@@ -47,10 +47,22 @@ const editProfile = {
     avatar: joi.string().optional().allow('')
   })
 }
+
+const confirmOtp = {
+  body: joi.object({
+    otp: joi
+      .string()
+      .length(4)
+      .pattern(/^\d{4}$/)
+      .required()
+  })
+}
+
 module.exports = {
   register,
   login,
   changePassword,
   forgotPassword,
-  editProfile
+  editProfile,
+  confirmOtp,
 }

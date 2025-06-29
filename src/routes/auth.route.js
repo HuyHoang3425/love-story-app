@@ -9,7 +9,7 @@ const { AuthValidation } = require('../validations/index')
 
 authRouter.post('/register', validate(AuthValidation.register), AuthController.register)
 
-authRouter.post('/register/confirm-otp', AuthController.confirmOtp)
+authRouter.post('/register/confirm-otp',validate(AuthValidation.confirmOtp), AuthController.confirmOtp)
 
 authRouter.post('/send-otp', AuthController.sendOtp)
 

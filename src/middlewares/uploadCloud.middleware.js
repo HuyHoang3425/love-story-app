@@ -6,7 +6,7 @@ const env = require('../config/env.config')
 cloudinary.config({
   cloud_name: env.cloudinary.cloud_name,
   api_key: env.cloudinary.api_key,
-  api_secret: env.cloudinary.api_setcret
+  api_secret: env.cloudinary.api_secret
 })
 
 const uploadCloudinary = (req, res, next) => {
@@ -20,7 +20,6 @@ const uploadCloudinary = (req, res, next) => {
             reject(error)
           }
         })
-
         streamifier.createReadStream(req.file.buffer).pipe(stream)
       })
     }
