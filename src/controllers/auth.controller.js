@@ -37,8 +37,8 @@ const register = catchAsync(async (req, res) => {
   user.tokenOtp = tokenOtp
   await user.save()
   res
-    .status(StatusCodes.OK)
-    .json(response(StatusCodes.OK, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email }))
+    .status(StatusCodes.CREATED)
+    .json(response(StatusCodes.CREATED, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email }))
 })
 
 const confirmOtp = catchAsync(async (req, res) => {
@@ -99,7 +99,7 @@ const login = catchAsync(async (req, res) => {
   const time = env.jwt.login
   const secret_login = env.jwt.secret_login
   const token = jwt.generateToken(req.body, secret_login, time)
-  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
 })
 
 const changePassword = catchAsync(async (req, res) => {
@@ -119,7 +119,7 @@ const changePassword = catchAsync(async (req, res) => {
   }
   user.password = newPassword
   await user.save()
-  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'cập nhật mật khẩu thành công.'))
 })
 
 const forgotPassword = catchAsync(async (req, res) => {
@@ -175,7 +175,7 @@ const resetPassword = catchAsync(async (req, res) => {
   user.password = newPassword
   user.tokenOtp = null
   await user.save()
-  res.status(StatusCodes.CREATED).json(response(StatusCodes.OK, 'Đặt lại mật khẩu thành công.'))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đặt lại mật khẩu thành công.'))
 })
 
 const profile = catchAsync(async (req, res) => {
@@ -228,7 +228,7 @@ const editProfile = catchAsync(async (req, res) => {
     runValidators: true
   }).select('-password')
   res
-    .status(StatusCodes.CREATED)
+    .status(StatusCodes.OK)
     .json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
 })
 module.exports = {
