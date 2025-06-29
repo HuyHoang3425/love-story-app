@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken')
 const env = require('../config/env.config')
 
-const generateToken = (payload, time) => {
-  return jwt.sign(payload, env.jwt.secret, {
+const generateToken = (payload, secret, time) => {
+  return jwt.sign(payload, secret, {
     expiresIn: time
   })
 }
 
-const verifyToken = (token) => {
-  const payload = jwt.verify(token, env.jwt.secret)
+const verifyToken = (token, secret) => {
+  const payload = jwt.verify(token, secret)
   return payload
 }
 

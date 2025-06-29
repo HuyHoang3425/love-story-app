@@ -17,7 +17,8 @@ const env = {
     saltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10
   },
   jwt: {
-    secret: process.env.JWT_SECRET,
+    secret_login: process.env.JWT_SECRET_LOGIN,
+    secret_otp: process.env.JWT_SECRET_OTP,
     login: process.env.JWT_EXPIRESIN_LOGIN,
     otp: process.env.JWT_EXPIRESIN_OTP
   },

@@ -11,6 +11,8 @@ authRouter.post('/register', validate(AuthValidation.register), AuthController.r
 
 authRouter.post('/register/confirm-otp', AuthController.confirmOtp)
 
+authRouter.post('/send-otp', AuthController.sendOtp)
+
 authRouter.post('/login', validate(AuthValidation.login), AuthController.login)
 
 authRouter.post('/change-password', auth, validate(AuthValidation.changePassword), AuthController.changePassword)
