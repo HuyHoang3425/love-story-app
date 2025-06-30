@@ -50,13 +50,16 @@ const editProfile = {
 
 const confirmOtp = {
   body: joi.object({
+    email: joi.string().email().required(),
     otp: joi
       .string()
       .length(4)
       .pattern(/^\d{4}$/)
-      .required()
+      .required(),
+    type: joi.string().valid('register', 'forgot-password').optional()
   })
 }
+
 
 module.exports = {
   register,
