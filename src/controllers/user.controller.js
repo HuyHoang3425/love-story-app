@@ -85,7 +85,7 @@ const deleteUser = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Người dùng không tồn tại.')
   }
 
-  await user.deleteOne();
+  await user.deleteOne()
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá người dùng thành công.'))
 })
 

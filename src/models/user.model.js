@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const env = require('../config/env.config')
 
 const { UserConstants } = require('../constants')
-const generateNumber = require('../utils/generate');
+const generateNumber = require('../utils/generate')
 
 const userSchema = new mongoose.Schema(
   {
@@ -59,27 +60,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
-    }
+    },
+    tokenOtp: String
   },
   {
     timestamps: true
   }
 )
 
-userSchema.pre('save',async function(next){
-  if(this.isModified('password')){
-    const saltRounds = parseInt(process.env.SALT_ROUNDS || 10);
-    this.password = await bcrypt.hash(this.password,saltRounds);
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    const saltRounds = env.bcrypt.saltRounds
+    this.password = await bcrypt.hash(this.password, saltRounds)
   }
   if (!this.coupleCode) {
-    let isUnique = false;
+    let isUnique = false
     while (!isUnique) {
-      this.coupleCode = generateNumber.generateNumber(6);
-      const user = await this.constructor.findOne({ coupleCode: this.coupleCode });
-      if (!user) isUnique = true;
+      this.coupleCode = generateNumber.generateNumber(6)
+      const user = await this.constructor.findOne({ coupleCode: this.coupleCode })
+      if (!user) isUnique = true
     }
   }
-  next();
+  next()
 })
 
 module.exports = mongoose.model('User', userSchema)

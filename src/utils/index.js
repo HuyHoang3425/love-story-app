@@ -1,5 +1,7 @@
 module.exports = {
   catchAsync: require('./catchAsync'),
   ApiError: require('./ApiError'),
-  response: require('./response')
+  response: require('./response'),
+  generate: require('./generate'),
+  jwt: require('./jwt')
 }

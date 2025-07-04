@@ -1,22 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-const winston = require('winston');
+const fs = require('fs')
+const path = require('path')
+const winston = require('winston')
 
-const env = require('./env.config');
+const env = require('./env.config')
 
-const logDir = path.resolve(__dirname, '../../logs');
+const logDir = path.resolve(__dirname, '../../logs')
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
+  fs.mkdirSync(logDir, { recursive: true })
 }
 
-const isDev = env.server.nodeEnv !== 'production';
+const isDev = env.server.nodeEnv !== 'production'
 
 const formats = [
   winston.format.colorize({ all: true }),
   winston.format.errors({ stack: true }),
   winston.format.timestamp({ format: 'DD-MM-YYYY HH:mm:ss' }),
-  winston.format.printf(({ timestamp, level, message, stack }) => `[${timestamp}] [${level}]: ${message || stack}`),
-];
+  winston.format.printf(({ timestamp, level, message, stack }) => `[${timestamp}] [${level}]: ${message || stack}`)
+]
 
 const logger = winston.createLogger({
   level: isDev ? 'debug' : 'info',
@@ -25,9 +25,9 @@ const logger = winston.createLogger({
     ...(isDev ? [new winston.transports.Console()] : []),
     new winston.transports.File({ filename: path.join(logDir, 'error.log'), level: 'error' }),
     new winston.transports.File({ filename: path.join(logDir, 'info.log'), level: 'info' }),
-    new winston.transports.File({ filename: path.join(logDir, 'combined.log') }),
+    new winston.transports.File({ filename: path.join(logDir, 'combined.log') })
   ],
-  exitOnError: false,
-});
+  exitOnError: false
+})
 
-module.exports = logger;
+module.exports = logger
