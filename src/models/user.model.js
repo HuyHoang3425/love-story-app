@@ -1,8 +1,10 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const env = require('../config/env.config')
+const env = require('../config/env.config')
 
 const { UserConstants } = require('../constants')
+const generateNumber = require('../utils/generate')
 const generateNumber = require('../utils/generate')
 
 const userSchema = new mongoose.Schema(
@@ -60,13 +62,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
-    },
-    tokenOtp: String,
-    requestFriends: Array,
-    acceptFriends: Array,
-    coupleId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Couples'
     }
   },
   {

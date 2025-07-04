@@ -21,6 +21,8 @@ app.use(cors())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'pug')
@@ -45,11 +47,17 @@ if (env.server.nodeEnv === 'development') {
   app.use(morganMiddleware)
   mongoose.set('debug', true)
   logger.info('Running in development mode')
+  app.use(morganMiddleware)
+  mongoose.set('debug', true)
+  logger.info('Running in development mode')
 }
 
 app.use('/api/v1', router)
+app.use('/api/v1', router)
 
 app.get('/', (req, res) => {
+  res.send('Backend Server for Love Story App is running!')
+})
   res.send('Backend Server for Love Story App is running!')
 })
 
@@ -62,8 +70,14 @@ app.get('/health', (req, res) => {
     })
   )
 })
+      environment: env.server.nodeEnv
+    })
+  )
+})
 
 app.all('{/*path}', (req, res) => {
+  res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy tài nguyên.'))
+})
   res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy tài nguyên.'))
 })
 
@@ -77,6 +91,9 @@ connectDB()
     })
   })
   .catch((error) => {
+    logger.error('Failed to connect to the database:', error)
+    process.exit(1)
+  })
     logger.error('Failed to connect to the database:', error)
     process.exit(1)
   })
