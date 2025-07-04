@@ -67,7 +67,10 @@ const confirmOtp = catchAsync(async (req, res) => {
         tokenOtp: null
       }
     )
-    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.'))
+    const time = env.jwt.login
+    const secret_login = env.jwt.secret_login
+    const token = jwt.generateToken({ id: user.id }, secret_login, time)
+    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.',token))
   } else if (type === 'forgot-password') {
     const time = env.jwt.otp
     const secret_otp = env.jwt.secret_otp
