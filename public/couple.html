@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<!-- couple.html -->
+<body>
+  <h1>Thông tin Couple</h1>
+  <div id="couple-info"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      console.log('TOKEN:', token);
+  
+      if (!token) {
+        alert('Vui lòng đăng nhập');
+        window.location.href = '/login.html';
+        return;
+      }
+  
+      const res = await fetch('http://localhost:3000/api/v1/couple/request', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      console.log('RESPONSE:', res);
+  
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        console.log('DATA:', data);
+        if (res.ok) {
+          document.getElementById('couple-info').innerText = JSON.stringify(data, null, 2);
+        } else {
+          alert(data.message || 'Có lỗi xảy ra khi lấy dữ liệu');
+        }
+      } else {
+        const text = await res.text();
+        console.warn('Server trả về HTML chứ không phải JSON:\n', text);
+        document.getElementById('couple-info').innerText = 'Server trả về HTML:\n' + text;
+      }
+    });
+  </script>
+</body>
+</html>

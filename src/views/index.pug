@@ -1,0 +1,54 @@
+doctype html
+html
+  head
+    title Nhập Couple Code
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    link(rel="stylesheet", href="/style.css")
+   
+  body
+    .container
+      h2 Nhập mã Couple Code
+      input(type="text", id="coupleCode", placeholder="Nhập mã...")
+      button(userId = userId btn-send) Gửi
+
+      table.management-table
+        thead
+          tr
+            th Yêu cầu đã gửi
+            th Yêu cầu nhận được
+            th Đang kết nối
+        tbody
+          tr
+            td
+              each user in requestFriends
+                .user-info
+                  .user-avatar U
+                  .user-details
+                    strong #{user.username}
+                  .user-actions
+                    button.btn.btn-cancel(btn-cancel=user._id) Huỷ
+              
+            td
+              // Yêu cầu nhận được
+              each user in acceptFriends
+                .user-info
+                  .user-avatar S
+                  .user-details
+                    strong #{user.username}
+                  .user-actions
+                    button.btn.btn-accept(btn-accept) Chấp nhận
+                    button.btn.btn-cancel(btn-refuse=user._id) Từ chối
+            td
+              // Đang kết nối
+              .user-info
+                .user-avatar M
+                .user-details
+                  strong mybaby
+                  br
+                  small Kết nối từ: 15/01/2024
+                .user-actions
+                  button.btn.btn-disconnect Ngắt kết nối
+
+    script(src="/socket.io/socket.io.js")
+    script(src="/app.js")

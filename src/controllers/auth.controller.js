@@ -243,5 +243,5 @@ module.exports = {
   resetPassword,
   profile,
   editProfile,
-  sendOtp
+  sendOtp,
 }

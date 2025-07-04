@@ -61,7 +61,13 @@ const userSchema = new mongoose.Schema(
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
     },
-    tokenOtp: String
+    tokenOtp: String,
+    requestFriends: Array,
+    acceptFriends: Array,
+    coupleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Couples'
+    }
   },
   {
     timestamps: true

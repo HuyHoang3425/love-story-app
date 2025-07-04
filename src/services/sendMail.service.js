@@ -5,7 +5,7 @@ const env = require('../config/env.config')
 
 const sendMail = (email, subject, otp, username) => {
   return new Promise((resolve, reject) => {
-    const htmlContent = pug.renderFile(path.join(__dirname, '../view/formSendEmail.pug'), { otp, email, username })
+    const htmlContent = pug.renderFile(path.join(__dirname, '../views/formSendEmail.pug'), { otp, email, username })
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
