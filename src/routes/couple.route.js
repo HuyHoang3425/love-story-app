@@ -6,7 +6,7 @@ const { auth } = require('../middlewares')
 
 coupleRouter.get('/request',auth, CoupleController.request)
 
-coupleRouter.get('/refuse', CoupleController.request)
+// coupleRouter.get('/refuse', CoupleController.request)
 
 
 

@@ -26,6 +26,15 @@ const couple = async (req, res) => {
           message: 'Mã coupleCode không hợp lệ!'
         })
       }
+      const existBinA = userA.requestFriends.includes(userB._id.toString())
+      const existAinB = userB.acceptFriends.includes(userA._id.toString())
+
+      if (existBinA || existAinB) {
+        return socket.emit('ERROR', {
+          status: StatusCodes.CONFLICT,
+          message: 'Bạn đã gửi lời mời với người này.'
+        })
+      }
       await User.updateOne(
         { _id: userA.id },
         {
@@ -38,9 +47,13 @@ const couple = async (req, res) => {
           $addToSet: { acceptFriends: userA.id }
         }
       )
+      socket.emit('SERVER_RETURN_USER_REQUEST',{
+        myUserId:userA.id,
+        userId:userB.id,
+        userName:userB.username,
+      })
     })
 
-    // socket.broadcast.emit()
 
     //A xoá lời mời kết bạn của mình cho B
     //xoá B khỏi requestFriends của A
@@ -72,6 +85,12 @@ const couple = async (req, res) => {
           $pull: { acceptFriends: userA.id }
         }
       )
+
+      socket.emit('SERVER_RETURN_USER_CANCEL',{
+        myUserId:userA.id,
+        userId:userB.id,
+        userName:userB.username,
+      })
     })
 
     //A từ chối lời mời kết bạn từ B
