@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cron = require('node-cron')
+const axios = require('axios')
 const { StatusCodes } = require('http-status-codes')
 
 const router = require('./routes')
@@ -36,6 +38,19 @@ app.get('/health', (req, res) => {
   )
 })
 
+// Define the /ping route
+app.get('/ping', (_req, res) => {
+  res.status(200).send('pong')
+})
+
+cron.schedule('*/10 * * * *', async () => {
+  try {
+    const res = await axios.get(`${env.app.url}/ping`)
+    logger.info(`[CRON] Ping response: ${res.status} - ${res.data}`)
+  } catch (error) {
+    logger.error(`[CRON] Ping failed: ${error}`)
+  }
+})
 app.all('{/*path}', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy tài nguyên.'))
 })
