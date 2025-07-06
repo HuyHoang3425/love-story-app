@@ -60,16 +60,21 @@ const couple = async (req, res) => {
           $addToSet: { acceptFriends: userA.id }
         }
       )
+      //kết bạn thành công
+      socket.emit('SUCCESS', {
+        message: 'Gửi lời mời kết đôi thành công!'
+      })
+    
       socket.emit('SERVER_RETURN_USER_REQUEST', {
         myUserId: userA.id,
-        userId: userB.id,
-        userName: userB.username
+        yourUserId: userB.id,
+        yourUserName: userB.username
       })
 
       socket.broadcast.emit('SERVER_RETURN_USER_ACCEPT', {
         myUserId: userB.id,
-        userId: userA.id,
-        userName: userA.username
+        yourUserId: userA.id,
+        yourUserName: userA.username
       })
     })
 
