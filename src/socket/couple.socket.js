@@ -50,6 +50,7 @@ const couple = async (req, res) => {
       )
       callback({
         status:"success",
+        message:"gửi lời mời thành công"
       })
       socket.emit('SERVER_RETURN_USER_REQUEST',{
         myUserId:userA.id,
