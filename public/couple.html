@@ -142,10 +142,10 @@
           userId,
           coupleCode
         },(ack) =>{
-          if(ack.status === "success"){
+          if(ack.status === "success" + ack.message){
             console.log("thanh cong")
           }else{
-            console.log("that bai")
+            console.log("that bai" + ack.message)
           }
         })
         input.value = ''

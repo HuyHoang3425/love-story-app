@@ -16,12 +16,15 @@ const couple = async (req, res) => {
         _id: data.userId
       })
       if (!userA) {
+        callback({ status: 'error', message: 'thất bại! đăng nhập'})
         return socket.emit('ERROR', {
           status: StatusCodes.UNAUTHORIZED,
           message: 'Vui lòng đăng nhập!'
         })
       }
       if (!userB) {
+        callback({ status: 'error', message: 'thất bại!không hợp lệ' })
+
         return socket.emit('ERROR', {
           status: StatusCodes.BAD_REQUEST,
           message: 'Mã coupleCode không hợp lệ!'
@@ -31,6 +34,7 @@ const couple = async (req, res) => {
       const existAinB = userB.acceptFriends.includes(userA._id.toString())
 
       if (existBinA || existAinB) {
+        callback({ status: 'error', message: 'thất bại!đã gửi' })
         return socket.emit('ERROR', {
           status: StatusCodes.CONFLICT,
           message: 'Bạn đã gửi lời mời với người này.'
