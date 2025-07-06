@@ -30,7 +30,7 @@
             <td body-accept></td>
 
             <!-- Đang kết nối -->
-            <td>
+            <td body-connect>
               <div class="user-info">
                 <div class="user-avatar">M</div>
                 <div class="user-details">
@@ -46,13 +46,16 @@
         </tbody>
       </table>
     </div>
+
     <script src="/socket.io/socket.io.js"></script>
+
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         const token = localStorage.getItem('token')
+
         if (!token) {
           alert('Vui lòng đăng nhập')
-          window.location.href = '/login.html'
+          window.location.href = '/'
           return
         }
 
@@ -65,19 +68,23 @@
             }
           })
 
-          const contentType = res.headers.get('content-type')
-          if (contentType && contentType.includes('application/json')) {
-            const data = await res.json()
-            console.log('DATA:', data)
-            await document.querySelector('[btn-send]').setAttribute('userId', data.data.userId)
-            await renderRequest(data.data)
-            await renderAccept(data.data)
-          } else {
-            const text = await res.text()
-            console.warn('Server trả về HTML:\n', text)
+          if (!res.ok) {
+            throw new Error('Lỗi khi lấy dữ liệu request')
           }
-        } catch (err) {
-          console.error('Lỗi khi lấy dữ liệu couple:', err)
+
+          const data = await res.json()
+          console.log('DATA:', data)
+
+          const btnSend = document.querySelector('[btn-send]')
+          if (btnSend && data.data?.userId) {
+            btnSend.setAttribute('userId', data.data.userId)
+          }
+
+          await renderRequest(data.data)
+          await renderAccept(data.data)
+        } catch (error) {
+          console.error('Lỗi:', error)
+          alert('Đã xảy ra lỗi khi tải dữ liệu.')
         }
       })
 
@@ -103,6 +110,7 @@
           `
           bodyRequest.appendChild(divUser)
         }
+        CancelFriends()
       }
 
       // 🟢 Render người đã gửi lời mời cho bạn (bạn có thể chấp nhận / từ chối)
@@ -122,16 +130,19 @@
               <strong>${user.username}</strong>
             </div>
             <div class="user-actions">
-              <button class="btn btn-accept" btn-accept data-id="${user._id}">Chấp nhận</button>
+              <button class="btn btn-accept" btn-accept="${user._id}">Chấp nhận</button>
               <button class="btn btn-cancel" btn-refuse="${user._id}">Từ chối</button>
             </div>
           `
           bodyAccept.appendChild(divUser)
         }
-        CancelFriends()
+        acceptFriends()
+        refuseFriends()
       }
+
       var socket = io()
 
+      //gửi yêu cầu
       const input = document.querySelector('input')
       const button = document.querySelector('[btn-send]')
       button.addEventListener('click', () => {
@@ -141,15 +152,10 @@
         socket.emit('USER_REQUEST_FRIEND', {
           userId,
           coupleCode
-        },(ack) =>{
-          if(ack.status === "success" + ack.message){
-            console.log("thanh cong")
-          }else{
-            console.log("that bai" + ack.message)
-          }
         })
         input.value = ''
       })
+
       //hiển thị những người mình gửi yêu cầu
       socket.on('SERVER_RETURN_USER_REQUEST', (data) => {
         const bodyRequest = document.querySelector('[body-request]')
@@ -158,47 +164,17 @@
             const divUser = document.createElement('div')
             divUser.classList.add('user-info')
             divUser.innerHTML = `
-      <div class="user-avatar">U</div>
-        <div class="user-details"><strong>${data.userName}</strong></div>
-        <div class="user-actions">
-        <button class="btn btn-cancel" btn-cancel="${data.userId}">Huỷ</button>
-      </div>
-      `
+              <div class="user-avatar">U</div>
+                <div class="user-details"><strong>${data.userName}</strong></div>
+                <div class="user-actions">
+                <button class="btn btn-cancel" btn-cancel="${data.userId}">Huỷ</button>
+              </div>
+              `
             bodyRequest.appendChild(divUser)
           }
         }
-
         CancelFriends()
       })
-
-      //hiển thị nhưng người gửi đến cho bạn
-      socket.on('SERVER_RETURN_USER_ACCEPT', (data) => {
-        console.log(data)
-        const bodyAccept = document.querySelector('[body-accept]')
-        if (bodyAccept) {
-          if (button.getAttribute('userId') == data.myUserId) {
-            const divUser = document.createElement('div')
-            divUser.classList.add('user-info')
-            divUser.innerHTML = `
-            <div class="user-avatar">S</div>
-            <div class="user-details">
-              <strong>${data.userName}</strong>
-            </div>
-            <div class="user-actions">
-              <button class="btn btn-accept" btn-accept data-id="${data.userId}">Chấp nhận</button>
-              <button class="btn btn-cancel" btn-refuse="${data.userId}">Từ chối</button>
-            </div>
-            `
-            bodyAccept.appendChild(divUser)
-          }
-        }
-      })
-
-      //bắt lỗi
-      socket.on('ERROR', (data) => {
-        console.log(data)
-      })
-
       //huỷ kết bạn
       const CancelFriends = () => {
         const btnCancels = document.querySelectorAll('[btn-cancel]')
@@ -215,8 +191,6 @@
           })
         }
       }
-      CancelFriends()
-
       //xoá những người mình huỷ yêu cầu
       socket.on('SERVER_RETURN_USER_CANCEL', (data) => {
         const bodyRequest = document.querySelector('[body-request]')
@@ -233,20 +207,83 @@
         }
       })
 
+      //hiển thị nhưng người gửi đến cho bạn
+      socket.on('SERVER_RETURN_USER_ACCEPT', (data) => {
+        console.log(data)
+        const bodyAccept = document.querySelector('[body-accept]')
+        if (bodyAccept) {
+          if (button.getAttribute('userId') == data.myUserId) {
+            const divUser = document.createElement('div')
+            divUser.classList.add('user-info')
+            divUser.innerHTML = `
+            <div class="user-avatar">S</div>
+            <div class="user-details">
+              <strong>${data.userName}</strong>
+            </div>
+            <div class="user-actions">
+              <button class="btn btn-accept" btn-accept="${data.userId}">Chấp nhận</button>
+              <button class="btn btn-cancel" btn-refuse="${data.userId}">Từ chối</button>
+            </div>
+            `
+            bodyAccept.appendChild(divUser)
+          }
+        }
+        acceptFriends()
+        refuseFriends()
+      })
       //từ chối kết bạn
-      const btnRefuse = document.querySelectorAll('[btn-refuse]')
-      if (btnRefuse.length > 0) {
-        btnRefuse.forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const myUserId = button.getAttribute('userId')
-            const userId = btn.getAttribute('btn-refuse')
-            socket.emit('USER_REFUSE_FRIEND', {
-              myUserId,
-              userId
+      const refuseFriends = () => {
+        const btnRefuse = document.querySelectorAll('[btn-refuse]')
+        if (btnRefuse.length > 0) {
+          btnRefuse.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const myUserId = button.getAttribute('userId')
+              const userId = btn.getAttribute('btn-refuse')
+              socket.emit('USER_REFUSE_FRIEND', {
+                myUserId,
+                userId
+              })
             })
           })
-        })
+        }
       }
+
+      socket.on('SERVER_RETURN_USER_REFUSE', (data) => {
+        const bodyAccept = document.querySelector('[body-accept]')
+        const myUserId = button.getAttribute('userId')
+        if (bodyAccept && myUserId == data.myUserId) {
+          const btn = document.querySelector(`[btn-refuse='${data.userId}']`)
+          if (btn) {
+            const boxUser = btn.closest('.user-info')
+            console.log(boxUser)
+            if (boxUser) {
+              bodyAccept.removeChild(boxUser)
+            }
+          }
+        }
+      })
+
+      //chấp nhận kết bạn
+      const acceptFriends = () => {
+        const btnAccept = document.querySelectorAll('[btn-accept]')
+        if (btnAccept.length > 0) {
+          btnAccept.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const myUserId = button.getAttribute('userId')
+              const yourUserId = btn.getAttribute('btn-accept')
+              socket.emit('USER_ACCEPT_FRIEND', {
+                myUserId,
+                yourUserId
+              })
+            })
+          })
+        }
+      }
+
+      //bắt lỗi
+      socket.on('ERROR', (data) => {
+        console.log(data)
+      })
     </script>
     <!-- <script src="app.js"></script> -->
   </body>

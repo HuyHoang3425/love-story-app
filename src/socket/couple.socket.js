@@ -1,5 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 const User = require('../models/user.model')
+const Couple = require('../models/couples.model')
 
 const couple = async (req, res) => {
   io.once('connection', (socket) => {
@@ -7,8 +8,7 @@ const couple = async (req, res) => {
     //A gửi lời mời kết bạn cho B
     //A thuộc acceptFriends của B
     //B thuộc requestFrineds của A
-    socket.on('USER_REQUEST_FRIEND', async (data,callback) => {
-      console.log(data)
+    socket.on('USER_REQUEST_FRIEND', async (data) => {
       const userB = await User.findOne({
         coupleCode: data.coupleCode
       })
@@ -16,15 +16,12 @@ const couple = async (req, res) => {
         _id: data.userId
       })
       if (!userA) {
-        callback({ status: 'error', message: 'thất bại! đăng nhập'})
         return socket.emit('ERROR', {
           status: StatusCodes.UNAUTHORIZED,
           message: 'Vui lòng đăng nhập!'
         })
       }
       if (!userB) {
-        callback({ status: 'error', message: 'thất bại!không hợp lệ' })
-
         return socket.emit('ERROR', {
           status: StatusCodes.BAD_REQUEST,
           message: 'Mã coupleCode không hợp lệ!'
@@ -33,8 +30,7 @@ const couple = async (req, res) => {
       const existBinA = userA.requestFriends.includes(userB._id.toString())
       const existAinB = userB.acceptFriends.includes(userA._id.toString())
 
-      if (existBinA || existAinB) {
-        callback({ status: 'error', message: 'thất bại!đã gửi' })
+      if (existBinA && existAinB) {
         return socket.emit('ERROR', {
           status: StatusCodes.CONFLICT,
           message: 'Bạn đã gửi lời mời với người này.'
@@ -52,14 +48,10 @@ const couple = async (req, res) => {
           $addToSet: { acceptFriends: userA.id }
         }
       )
-      callback({
-        status:"success",
-        message:"gửi lời mời thành công"
-      })
-      socket.emit('SERVER_RETURN_USER_REQUEST',{
-        myUserId:userA.id,
-        userId:userB.id,
-        userName:userB.username,
+      socket.emit('SERVER_RETURN_USER_REQUEST', {
+        myUserId: userA.id,
+        userId: userB.id,
+        userName: userB.username
       })
 
       socket.broadcast.emit('SERVER_RETURN_USER_ACCEPT', {
@@ -68,7 +60,6 @@ const couple = async (req, res) => {
         userName: userA.username
       })
     })
-
 
     //A xoá lời mời kết bạn của mình cho B
     //xoá B khỏi requestFriends của A
@@ -100,11 +91,10 @@ const couple = async (req, res) => {
           $pull: { acceptFriends: userA.id }
         }
       )
-
-      socket.emit('SERVER_RETURN_USER_CANCEL',{
-        myUserId:userA.id,
-        userId:userB.id,
-        userName:userB.username,
+      socket.emit('SERVER_RETURN_USER_CANCEL', {
+        myUserId: userA.id,
+        userId: userB.id,
+        userName: userB.username
       })
     })
 
@@ -138,9 +128,61 @@ const couple = async (req, res) => {
           $pull: { requestFriends: userA.id }
         }
       )
+
+      socket.emit('SERVER_RETURN_USER_REFUSE', {
+        myUserId: userA.id,
+        userId: userB.id,
+        userName: userB.username
+      })
+    })
+
+    //A chấp nhận yêu cầu của B
+    socket.on('USER_ACCEPT_FRIEND', async (data) => {
+      const userIdA = data.myUserId
+      const userIdB = data.yourUserId
+
+      const userA = await User.findById(userIdA)
+      const userB = await User.findById(userIdB)
+
+      if (!userA || !userB) {
+        return socket.emit('ERROR', {
+          status: StatusCodes.NOT_FOUND,
+          message: 'Không tìm thấy user!'
+        })
+      }
+
+      if (userA.coupleId || userB.coupleId) {
+        return socket.emit('ERROR', {
+          status: StatusCodes.CONFLICT,
+          message: 'Bạn đã có Couple rồi!!!'
+        })
+      }
+
+      const newCouple = await Couple.create({
+        userIdA: userIdA,
+        userIdB: userIdB,
+        coin: 0,
+        loveStartedAt: new Date()
+      })
+      await newCouple.save()
+
+      await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
+      await User.updateOne(
+        { _id: userIdA },
+        {
+          $pull: { acceptFriends: data.userId },
+          $pull: { requestFriends: data.userId }
+        }
+      )
+      await User.updateOne(
+        { _id: userIdB },
+        {
+          $pull: { requestFriends: data.myUserId },
+          $pull: { acceptFriends: data.myUserId }
+        }
+      )
     })
   })
-
 }
 module.exports = {
   couple

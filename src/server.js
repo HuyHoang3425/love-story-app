@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')))
 
 app.use(
   cors({
-    origin: '*' // hoặc 'http://localhost:5500' nếu bạn chỉ cho phép 1 trang tĩnh
+    origin: '*'
   })
 )
 
