@@ -23,6 +23,9 @@ authRouter.post('/forgot-password/reset-password', AuthController.resetPassword)
 
 authRouter.get('/profile', auth, AuthController.profile)
 
+authRouter.get('/check', auth, AuthController.check)
+
+
 authRouter.post(
   '/profile',
   auth,

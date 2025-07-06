@@ -234,6 +234,16 @@ const editProfile = catchAsync(async (req, res) => {
     .status(StatusCodes.OK)
     .json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
 })
+
+const check = catchAsync(async (req, res) => {
+  const id = req.user.id
+  const user = await User.findById(id).select("coupleId")
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', {
+      coupleId: user.coupleId || null
+    })
+  )
+})
 module.exports = {
   register,
   confirmOtp,
@@ -244,4 +254,5 @@ module.exports = {
   profile,
   editProfile,
   sendOtp,
+  check
 }

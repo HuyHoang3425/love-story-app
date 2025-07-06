@@ -13,7 +13,7 @@ const couple = async (req, res) => {
         coupleCode: data.coupleCode
       })
       const userA = await User.findOne({
-        _id: data.userId
+        _id: data.myUserId
       })
       if (!userA) {
         return socket.emit('ERROR', {
@@ -25,6 +25,18 @@ const couple = async (req, res) => {
         return socket.emit('ERROR', {
           status: StatusCodes.BAD_REQUEST,
           message: 'Mã coupleCode không hợp lệ!'
+        })
+      }
+      if (userA._id.toString() === userB._id.toString()) {
+        return socket.emit('ERROR', {
+          status: StatusCodes.BAD_REQUEST,
+          message: 'Không thể gửi lời mời cho chính mình!'
+        })
+      }
+      if (userA.coupleId || userB.coupleId) {
+        return socket.emit('ERROR', {
+          status: StatusCodes.CONFLICT,
+          message: 'Bạn đã có Couple rồi!'
         })
       }
       const existBinA = userA.requestFriends.includes(userB._id.toString())

@@ -146,11 +146,11 @@
       const input = document.querySelector('input')
       const button = document.querySelector('[btn-send]')
       button.addEventListener('click', () => {
-        const userId = button.getAttribute('userId')
+        const myUserId = button.getAttribute('userId')
         const coupleCode = input.value
         console.log(input.value)
         socket.emit('USER_REQUEST_FRIEND', {
-          userId,
+          myUserId,
           coupleCode
         })
         input.value = ''
