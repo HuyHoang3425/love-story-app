@@ -4,7 +4,7 @@ const Couple = require('../models/couples.model')
 
 const couple = async (req, res) => {
   io.once('connection', (socket) => {
-    console.log('đã kết nối')
+    console.log('đã kết nối:' + socket.id )
     //A gửi lời mời kết bạn cho B
     //A thuộc acceptFriends của B
     //B thuộc requestFrineds của A
@@ -22,6 +22,7 @@ const couple = async (req, res) => {
         })
       }
       if (!userB) {
+        console.log('Mã coupleCode không hợp lệ!')
         return socket.emit('ERROR', {
           status: StatusCodes.BAD_REQUEST,
           message: 'Mã coupleCode không hợp lệ!'
@@ -83,7 +84,7 @@ const couple = async (req, res) => {
     //xoá A khỏi acceptFriends của B
     socket.on('USER_CANCEL_FRIEND', async (data) => {
       const userA = await User.findOne({ _id: data.myUserId })
-      const userB = await User.findOne({ _id: data.userId })
+      const userB = await User.findOne({ _id: data.yourUserId })
       if (!userA) {
         return socket.emit('ERROR', {
           status: StatusCodes.UNAUTHORIZED,
@@ -108,10 +109,20 @@ const couple = async (req, res) => {
           $pull: { acceptFriends: userA.id }
         }
       )
-      socket.emit('SERVER_RETURN_USER_CANCEL', {
+
+      // Huỷ kết bạn thành công
+      socket.emit('SUCCESS', {
+        message: 'Huỷ kết đôi thành công!'
+      })
+
+      socket.emit('SERVER_RETURN_USER_CANCEL_REQUEST', {
         myUserId: userA.id,
-        userId: userB.id,
-        userName: userB.username
+        yourUserId: userB.id
+      })
+
+      socket.broadcast.emit('SERVER_RETURN_USER_CANCEL_ACCEPT', {
+        myUserId: userB.id,
+        yourUserId: userA.id
       })
     })
 
@@ -145,12 +156,21 @@ const couple = async (req, res) => {
           $pull: { requestFriends: userA.id }
         }
       )
-
-      socket.emit('SERVER_RETURN_USER_REFUSE', {
-        myUserId: userA.id,
-        userId: userB.id,
-        userName: userB.username
+      // Từ chối kết bạn thành công
+      socket.emit('SUCCESS', {
+        message: 'Từ chối kết đôi thành công!'
       })
+
+      socket.emit('SERVER_RETURN_USER_REFUSE_ACCEPT', {
+        myUserId: userA.id,
+        yourUserId: userB.id,
+      })
+
+      socket.broadcast.emit('SERVER_RETURN_USER_REFUSE_REQUEST', {
+        myUserId: userB.id,
+        yourUserId: userA.id
+      })
+
     })
 
     //A chấp nhận yêu cầu của B
@@ -174,7 +194,10 @@ const couple = async (req, res) => {
           message: 'Bạn đã có Couple rồi!!!'
         })
       }
-
+      // Từ chối kết bạn thành công
+      socket.emit('SUCCESS', {
+        message: 'Kết đôi thành công!'
+      })
       const newCouple = await Couple.create({
         userIdA: userIdA,
         userIdB: userIdB,
@@ -187,17 +210,22 @@ const couple = async (req, res) => {
       await User.updateOne(
         { _id: userIdA },
         {
-          $pull: { acceptFriends: data.userId },
-          $pull: { requestFriends: data.userId }
+          $set: {
+            acceptFriends: [],
+            requestFriends: []
+          }
         }
       )
       await User.updateOne(
         { _id: userIdB },
         {
-          $pull: { requestFriends: data.myUserId },
-          $pull: { acceptFriends: data.myUserId }
+          $set: {
+            acceptFriends: [],
+            requestFriends: []
+          }
         }
       )
+      
     })
   })
 }

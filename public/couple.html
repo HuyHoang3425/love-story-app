@@ -82,6 +82,7 @@
 
           await renderRequest(data.data)
           await renderAccept(data.data)
+          await renderConnect(data.data)
         } catch (error) {
           console.error('Lỗi:', error)
           alert('Đã xảy ra lỗi khi tải dữ liệu.')
@@ -140,6 +141,28 @@
         refuseFriends()
       }
 
+      // 🟢 Render người đã kết nối (myLove)
+      function renderConnect(data) {
+        const bodyConnect = document.querySelector('[body-connect]')
+        if (!bodyConnect || !data.myLove) return
+        bodyConnect.innerHTML = '' // Xoá trước nếu có
+        const divUser = document.createElement('div')
+        divUser.classList.add('user-info')
+        divUser.innerHTML = `
+          <div class="user-avatar">${data.myLove.username.charAt(0).toUpperCase()}</div>
+          <div class="user-details">
+            <strong>${data.myLove.username}</strong>
+          </div>
+          <div class="user-actions">
+            <button class="btn btn-disconnect" btn-disconnect="${data.myLove._id}">Ngắt kết nối</button>
+          </div>
+        `
+
+        bodyConnect.appendChild(divUser)
+
+      
+      }
+
       var socket = io()
 
       //gửi yêu cầu
@@ -165,9 +188,9 @@
             divUser.classList.add('user-info')
             divUser.innerHTML = `
               <div class="user-avatar">U</div>
-                <div class="user-details"><strong>${data.userName}</strong></div>
+                <div class="user-details"><strong>${data.yourUserName}</strong></div>
                 <div class="user-actions">
-                <button class="btn btn-cancel" btn-cancel="${data.userId}">Huỷ</button>
+                <button class="btn btn-cancel" btn-cancel="${data.yourUserId}">Huỷ</button>
               </div>
               `
             bodyRequest.appendChild(divUser)
@@ -182,26 +205,40 @@
           btnCancels.forEach((btn) => {
             btn.addEventListener('click', () => {
               const myUserId = button.getAttribute('userId')
-              const userId = btn.getAttribute('btn-cancel')
+              const yourUserId = btn.getAttribute('btn-cancel')
               socket.emit('USER_CANCEL_FRIEND', {
                 myUserId,
-                userId
+                yourUserId
               })
             })
           })
         }
       }
       //xoá những người mình huỷ yêu cầu
-      socket.on('SERVER_RETURN_USER_CANCEL', (data) => {
+      socket.on('SERVER_RETURN_USER_CANCEL_REQUEST', (data) => {
         const bodyRequest = document.querySelector('[body-request]')
         const myUserId = button.getAttribute('userId')
 
         if (bodyRequest && myUserId == data.myUserId) {
-          const btn = document.querySelector(`[btn-cancel='${data.userId}']`)
+          const btn = document.querySelector(`[btn-cancel='${data.yourUserId}']`)
           if (btn) {
             const boxUser = btn.closest('.user-info')
             if (boxUser) {
               bodyRequest.removeChild(boxUser)
+            }
+          }
+        }
+      })
+
+      socket.on('SERVER_RETURN_USER_CANCEL_ACCEPT', (data) => {
+        const bodyAccept = document.querySelector('[body-accept]')
+        const myUserId = button.getAttribute('userId')
+        if (bodyAccept && myUserId == data.myUserId) {
+          const btn = document.querySelector(`[btn-accept='${data.yourUserId}']`)
+          if (btn) {
+            const boxUser = btn.closest('.user-info')
+            if (boxUser) {
+              bodyAccept.removeChild(boxUser)
             }
           }
         }
@@ -218,11 +255,11 @@
             divUser.innerHTML = `
             <div class="user-avatar">S</div>
             <div class="user-details">
-              <strong>${data.userName}</strong>
+              <strong>${data.yourUserName}</strong>
             </div>
             <div class="user-actions">
-              <button class="btn btn-accept" btn-accept="${data.userId}">Chấp nhận</button>
-              <button class="btn btn-cancel" btn-refuse="${data.userId}">Từ chối</button>
+              <button class="btn btn-accept" btn-accept="${data.yourUserId}">Chấp nhận</button>
+              <button class="btn btn-cancel" btn-refuse="${data.yourUserId}">Từ chối</button>
             </div>
             `
             bodyAccept.appendChild(divUser)
@@ -248,16 +285,31 @@
         }
       }
 
-      socket.on('SERVER_RETURN_USER_REFUSE', (data) => {
+      socket.on('SERVER_RETURN_USER_REFUSE_ACCEPT', (data) => {
         const bodyAccept = document.querySelector('[body-accept]')
         const myUserId = button.getAttribute('userId')
         if (bodyAccept && myUserId == data.myUserId) {
-          const btn = document.querySelector(`[btn-refuse='${data.userId}']`)
+          const btn = document.querySelector(`[btn-refuse='${data.yourUserId}']`)
           if (btn) {
             const boxUser = btn.closest('.user-info')
             console.log(boxUser)
             if (boxUser) {
               bodyAccept.removeChild(boxUser)
+            }
+          }
+        }
+      })
+      socket.on('SERVER_RETURN_USER_REFUSE_REQUEST', (data) => {
+        console.log(data)
+        const bodyRequest = document.querySelector('[body-request]')
+        const myUserId = button.getAttribute('userId')
+        if (bodyRequest && myUserId == data.myUserId) {
+          const btn = document.querySelector(`[btn-cancel='${data.yourUserId}']`)
+          if (btn) {
+            const boxUser = btn.closest('.user-info')
+            console.log(boxUser)
+            if (boxUser) {
+              bodyRequest.removeChild(boxUser)
             }
           }
         }
