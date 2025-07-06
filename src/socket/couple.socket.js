@@ -7,7 +7,8 @@ const couple = async (req, res) => {
     //A gửi lời mời kết bạn cho B
     //A thuộc acceptFriends của B
     //B thuộc requestFrineds của A
-    socket.on('USER_REQUEST_FRIEND', async (data) => {
+    socket.on('USER_REQUEST_FRIEND', async (data,callback) => {
+      console.log(data)
       const userB = await User.findOne({
         coupleCode: data.coupleCode
       })
@@ -47,10 +48,19 @@ const couple = async (req, res) => {
           $addToSet: { acceptFriends: userA.id }
         }
       )
+      callback({
+        status:"success",
+      })
       socket.emit('SERVER_RETURN_USER_REQUEST',{
         myUserId:userA.id,
         userId:userB.id,
         userName:userB.username,
+      })
+
+      socket.broadcast.emit('SERVER_RETURN_USER_ACCEPT', {
+        myUserId: userB.id,
+        userId: userA.id,
+        userName: userA.username
       })
     })
 

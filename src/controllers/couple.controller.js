@@ -19,6 +19,7 @@ const request = catchAsync(async (req, res) => {
   //   acceptFriends: acceptFriends,
   //   requestFriends: requestFriends
   // })
+  
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy thông tin thành công.', {
       userId: user.id,

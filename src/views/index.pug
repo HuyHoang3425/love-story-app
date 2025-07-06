@@ -20,7 +20,7 @@ html
             th Đang kết nối
         tbody
           tr
-            td
+            td(body-request)
               each user in requestFriends
                 .user-info
                   .user-avatar U
@@ -29,7 +29,7 @@ html
                   .user-actions
                     button.btn.btn-cancel(btn-cancel=user._id) Huỷ
               
-            td
+            td(body-accept)
               // Yêu cầu nhận được
               each user in acceptFriends
                 .user-info
