@@ -1,9 +1,8 @@
 const { StatusCodes } = require('http-status-codes')
-const User = require('../../models/user.model')
-const Couple = require('../../models/couples.model')
-const { usersOnline } = require('../../utils')
+const {User, Couple } = require('../../models')
+const { usersOnline, catchAsync } = require('../../utils')
 
-const couple = async (socket, io) => {
+const couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
   const myUserName = socket.user.username
   //A gửi lời mời kết bạn cho B
@@ -13,19 +12,10 @@ const couple = async (socket, io) => {
     const userB = await User.findOne({
       coupleCode: data.coupleCode
     })
-    const userA = await User.findOne({
-      _id: myUserId
-    })
-
+    const userA = socket.user
     const userIdB = userB.id
     const socketId = usersOnline.getSocketId(userIdB)
 
-    if (!userA) {
-      return socket.emit('ERROR', {
-        status: StatusCodes.UNAUTHORIZED,
-        message: 'Vui lòng đăng nhập!'
-      })
-    }
     if (!userB) {
       console.log('Mã coupleCode không hợp lệ!')
       return socket.emit('ERROR', {
@@ -60,6 +50,7 @@ const couple = async (socket, io) => {
         message: 'Bạn đã gửi lời mời với người này.'
       })
     }
+
     await User.updateOne(
       { _id: userA.id },
       {
@@ -85,7 +76,7 @@ const couple = async (socket, io) => {
     })
     //B nhận gửi A
     // A vừa gửi lời mời cho bạn
-    if(socketId){
+    if (socketId) {
       socket.to(socketId).emit('SERVER_RETURN_USER_ACCEPT', {
         myUserId: userB.id,
         yourUserId: myUserId,
@@ -98,14 +89,8 @@ const couple = async (socket, io) => {
   //xoá B khỏi requestFriends của A
   //xoá A khỏi acceptFriends của B
   socket.on('USER_CANCEL_FRIEND', async (data) => {
-    const userA = await User.findOne({ _id: myUserId })
+    const userA = socket.user
     const userB = await User.findOne({ _id: data.yourUserId })
-    if (!userA) {
-      return socket.emit('ERROR', {
-        status: StatusCodes.UNAUTHORIZED,
-        message: 'Vui lòng đăng nhập!'
-      })
-    }
     if (!userB) {
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
@@ -145,14 +130,9 @@ const couple = async (socket, io) => {
   //xoá B khỏi acceptFriends của A
   //xoá A khỏi requestFriends của B
   socket.on('USER_REFUSE_FRIEND', async (data) => {
-    const userA = await User.findOne({ _id: myUserId })
+    const userA = socket.user
     const userB = await User.findOne({ _id: data.userId })
-    if (!userA) {
-      return socket.emit('ERROR', {
-        status: StatusCodes.UNAUTHORIZED,
-        message: 'Vui lòng đăng nhập!'
-      })
-    }
+   
     if (!userB) {
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
@@ -192,10 +172,10 @@ const couple = async (socket, io) => {
     const userIdA = myUserId
     const userIdB = data.yourUserId
 
-    const userA = await User.findById(userIdA)
+    const userA = socket.user
     const userB = await User.findById(userIdB)
 
-    if (!userA || !userB) {
+    if (!userB) {
       return socket.emit('ERROR', {
         status: StatusCodes.NOT_FOUND,
         message: 'Không tìm thấy user!'
@@ -213,10 +193,8 @@ const couple = async (socket, io) => {
       message: 'Kết đôi thành công!'
     })
     const newCouple = await Couple.create({
-      userIdA: userIdA,
-      userIdB: userIdB,
-      coin: 0,
-      loveStartedAt: new Date()
+      userIdA,
+      userIdB,
     })
     await newCouple.save()
 
@@ -240,7 +218,7 @@ const couple = async (socket, io) => {
       }
     )
   })
-}
+})
 module.exports = {
   couple
 }

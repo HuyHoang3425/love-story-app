@@ -1,5 +1,3 @@
-const authSocket = require('./authSocket.middleware')
-
 module.exports = {
   ...require('./error.middleware'),
   validate: require('./validate.middleware'),

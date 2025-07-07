@@ -11,7 +11,6 @@ const authSocket = async (socket, next) => {
   if (!token) {
     return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Vui lòng đăng nhập!'))
   }
-  console.log(token)
   const payload = jwt.verifyToken(token, env.jwt.secret_login)
   const user = await User.findById(payload.id)
   if (!user) {
