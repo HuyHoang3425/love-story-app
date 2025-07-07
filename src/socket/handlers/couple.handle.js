@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const User = require('../../models/user.model')
 const Couple = require('../../models/couples.model')
+const { usersOnline } = require('../../utils')
 
 const couple = async (socket, io) => {
   const myUserId = socket.user.id
@@ -15,6 +16,10 @@ const couple = async (socket, io) => {
     const userA = await User.findOne({
       _id: myUserId
     })
+
+    const userIdB = userB.id
+    const socketId = usersOnline.getSocketId(userIdB)
+
     if (!userA) {
       return socket.emit('ERROR', {
         status: StatusCodes.UNAUTHORIZED,
@@ -71,18 +76,22 @@ const couple = async (socket, io) => {
     socket.emit('SUCCESS', {
       message: 'Gửi lời mời kết đôi thành công!'
     })
-
+    //A gửi B
+    //bạn vừa gửi lời mời cho B
     socket.emit('SERVER_RETURN_USER_REQUEST', {
       myUserId: myUserId,
       yourUserId: userB.id,
       yourUserName: userB.username
     })
-
-    socket.broadcast.emit('SERVER_RETURN_USER_ACCEPT', {
-      myUserId: userB.id,
-      yourUserId: myUserId,
-      yourUserName: myUserName
-    })
+    //B nhận gửi A
+    // A vừa gửi lời mời cho bạn
+    if(socketId){
+      socket.to(socketId).emit('SERVER_RETURN_USER_ACCEPT', {
+        myUserId: userB.id,
+        yourUserId: myUserId,
+        yourUserName: myUserName
+      })
+    }
   })
 
   //A xoá lời mời kết bạn của mình cho B
