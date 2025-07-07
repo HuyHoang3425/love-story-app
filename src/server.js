@@ -7,6 +7,7 @@ const path = require('path')
 const cors = require('cors')
 
 const router = require('./routes')
+const socket = require('./socket')
 const { response } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
@@ -31,8 +32,7 @@ app.use(
 
 //socketIO
 const server = http.createServer(app)
-const io = new Server(server)
-global.io = io
+socket.initSocket(server)
 
 app.set('trust proxy', true)
 

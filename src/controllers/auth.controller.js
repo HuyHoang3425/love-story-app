@@ -38,7 +38,9 @@ const register = catchAsync(async (req, res) => {
   await user.save()
   res
     .status(StatusCodes.CREATED)
-    .json(response(StatusCodes.CREATED, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email }))
+    .json(
+      response(StatusCodes.CREATED, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email })
+    )
 })
 
 const confirmOtp = catchAsync(async (req, res) => {
@@ -70,7 +72,7 @@ const confirmOtp = catchAsync(async (req, res) => {
     const time = env.jwt.login
     const secret_login = env.jwt.secret_login
     const token = jwt.generateToken({ id: user.id }, secret_login, time)
-    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.',token))
+    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.', token))
   } else if (type === 'forgot-password') {
     const time = env.jwt.otp
     const secret_otp = env.jwt.secret_otp
@@ -101,7 +103,7 @@ const login = catchAsync(async (req, res) => {
   }
   const time = env.jwt.login
   const secret_login = env.jwt.secret_login
-  const token = jwt.generateToken({id:user.id}, secret_login, time)
+  const token = jwt.generateToken({ id: user.id }, secret_login, time)
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
 })
 
@@ -230,14 +232,12 @@ const editProfile = catchAsync(async (req, res) => {
     new: true,
     runValidators: true
   }).select('-password')
-  res
-    .status(StatusCodes.OK)
-    .json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
 })
 
 const check = catchAsync(async (req, res) => {
   const id = req.user.id
-  const user = await User.findById(id).select("coupleId")
+  const user = await User.findById(id).select('coupleId')
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', {
       coupleId: user.coupleId || null

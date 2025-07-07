@@ -1,15 +1,14 @@
-const { Couple } = require('../socket/index')
-const { User } = require('../models/index')
 const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
+const { User } = require('../models/index')
+
 const request = catchAsync(async (req, res) => {
-  Couple.couple(req, res)
   const user = await User.findById(req.user.id).select('username acceptFriends requestFriends coupleId').populate({
     path: 'coupleId',
     select: 'userIdA userIdB'
   })
-  let myLove = null;
+  let myLove = null
   if (user.coupleId && user.coupleId.userIdA && user.coupleId.userIdB) {
     const yourUserId = user.id === user.coupleId.userIdA.toString() ? user.coupleId.userIdB : user.coupleId.userIdA
     myLove = await User.findById(yourUserId).select('username')
@@ -24,7 +23,7 @@ const request = catchAsync(async (req, res) => {
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy thông tin thành công.', {
-      userId:user.id,
+      userId: user.id,
       myLove: myLove,
       acceptFriends: acceptFriends,
       requestFriends: requestFriends
