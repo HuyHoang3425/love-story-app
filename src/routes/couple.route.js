@@ -6,4 +6,10 @@ const { auth } = require('../middlewares')
 
 coupleRouter.get('/connect', auth, CoupleController.request)
 
+coupleRouter.get('/', auth, CoupleController.getInfoCouple)
+
+coupleRouter.patch('/', auth, CoupleController.editInfoCouple)
+
+
+
 module.exports = coupleRouter
