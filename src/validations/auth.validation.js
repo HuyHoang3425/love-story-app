@@ -60,12 +60,11 @@ const confirmOtp = {
   })
 }
 
-
 module.exports = {
   register,
   login,
   changePassword,
   forgotPassword,
   editProfile,
-  confirmOtp,
+  confirmOtp
 }

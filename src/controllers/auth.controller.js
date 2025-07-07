@@ -38,7 +38,9 @@ const register = catchAsync(async (req, res) => {
   await user.save()
   res
     .status(StatusCodes.CREATED)
-    .json(response(StatusCodes.CREATED, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email }))
+    .json(
+      response(StatusCodes.CREATED, 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.', { email })
+    )
 })
 
 const confirmOtp = catchAsync(async (req, res) => {
@@ -70,7 +72,7 @@ const confirmOtp = catchAsync(async (req, res) => {
     const time = env.jwt.login
     const secret_login = env.jwt.secret_login
     const token = jwt.generateToken({ id: user.id }, secret_login, time)
-    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.',token))
+    res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xác thực tài khoản thành công.', token))
   } else if (type === 'forgot-password') {
     const time = env.jwt.otp
     const secret_otp = env.jwt.secret_otp
@@ -87,21 +89,23 @@ const confirmOtp = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body
 
-  const user = await User.findOne({ email: email })
-
+  const user = await User.findOne({ email: email }).select("+password")
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc Password không chính xác.')
   }
+
   const isPasswordMatch = await bcrypt.compare(password, user.password)
   if (!isPasswordMatch) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc Password không chính xác.')
   }
+
   if (!user.isVerified) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Tài khoản chưa được xác nhận.')
   }
+
   const time = env.jwt.login
   const secret_login = env.jwt.secret_login
-  const token = jwt.generateToken({id:user.id}, secret_login, time)
+  const token = jwt.generateToken({ id: user.id }, secret_login, time)
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đăng nhập thành công.', token))
 })
 
@@ -183,7 +187,10 @@ const resetPassword = catchAsync(async (req, res) => {
 
 const profile = catchAsync(async (req, res) => {
   const { email } = req.user
-  const user = await User.findOne({ email: email }).select('-password')
+  const user = await User.findOne({ email: email }).populate({
+    path: 'coupleId',
+    populate:'userIdA userIdB'
+  })
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
   }
@@ -230,10 +237,9 @@ const editProfile = catchAsync(async (req, res) => {
     new: true,
     runValidators: true
   }).select('-password')
-  res
-    .status(StatusCodes.OK)
-    .json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'cập nhật thông tin người dùng thành công.', userUpdate))
 })
+
 module.exports = {
   register,
   confirmOtp,
@@ -243,5 +249,5 @@ module.exports = {
   resetPassword,
   profile,
   editProfile,
-  sendOtp
+  sendOtp,
 }

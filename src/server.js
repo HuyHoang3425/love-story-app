@@ -1,18 +1,40 @@
+const path = require('path')
+const cors = require('cors')
+const http = require('http')
+const axios = require('axios')
+const cron = require('node-cron')
 const express = require('express')
 const mongoose = require('mongoose')
-const cron = require('node-cron')
-const axios = require('axios')
+const { Server } = require('socket.io')
 const { StatusCodes } = require('http-status-codes')
 
 const router = require('./routes')
+const socket = require('./socket')
 const { response } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 
 const app = express()
 
+app.use(cors())
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.set('views', `${__dirname}/views`)
+app.set('view engine', 'pug')
+
+app.use(express.static(path.join(__dirname, '..', 'public')))
+
+app.use(
+  cors({
+    origin: '*'
+  })
+)
+
+//socketIO
+const server = http.createServer(app)
+socket.initSocket(server)
 
 app.set('trust proxy', true)
 
@@ -60,7 +82,7 @@ app.use(errorHandler)
 
 connectDB()
   .then(() => {
-    app.listen(env.server.port, () => {
+    server.listen(env.server.port, () => {
       logger.info(`Server is running on ${env.server.host}:${env.server.port}`)
     })
   })

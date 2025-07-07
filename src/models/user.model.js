@@ -22,7 +22,8 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 6
+      minlength: 6,
+      select: false
     },
     firstName: {
       type: String,
@@ -61,7 +62,13 @@ const userSchema = new mongoose.Schema(
       enum: UserConstants.ROLE,
       default: UserConstants.ROLE.USER
     },
-    tokenOtp: String
+    tokenOtp: String,
+    requestFriends: Array,
+    acceptFriends: Array,
+    coupleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Couple'
+    }
   },
   {
     timestamps: true
