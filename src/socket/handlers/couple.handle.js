@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const {User, Couple } = require('../../models')
+const { User, Couple } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
 
 const couple = catchAsync(async (socket, io) => {
@@ -12,9 +12,6 @@ const couple = catchAsync(async (socket, io) => {
     const userB = await User.findOne({
       coupleCode: data.coupleCode
     })
-    const userA = socket.user
-    const userIdB = userB.id
-    const socketId = usersOnline.getSocketId(userIdB)
 
     if (!userB) {
       console.log('Mã coupleCode không hợp lệ!')
@@ -23,6 +20,11 @@ const couple = catchAsync(async (socket, io) => {
         message: 'Mã coupleCode không hợp lệ!'
       })
     }
+
+    const userA = socket.user
+    const userIdB = userB.id
+    const socketId = usersOnline.getSocketId(userIdB)
+
     if (userA._id.toString() === userB._id.toString()) {
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
@@ -110,6 +112,9 @@ const couple = catchAsync(async (socket, io) => {
       }
     )
 
+    const userIdB = userB.id
+    const socketId = usersOnline.getSocketId(userIdB)
+
     // Huỷ kết bạn thành công
     socket.emit('SUCCESS', {
       message: 'Huỷ kết đôi thành công!'
@@ -120,10 +125,12 @@ const couple = catchAsync(async (socket, io) => {
       yourUserId: userB.id
     })
 
-    socket.broadcast.emit('SERVER_RETURN_USER_CANCEL_ACCEPT', {
-      myUserId: userB.id,
-      yourUserId: userA.id
-    })
+    if (socketId) {
+      socket.to(socketId).emit('SERVER_RETURN_USER_CANCEL_ACCEPT', {
+        myUserId: userB.id,
+        yourUserId: userA.id
+      })
+    }
   })
 
   //A từ chối lời mời kết bạn từ B
@@ -132,7 +139,7 @@ const couple = catchAsync(async (socket, io) => {
   socket.on('USER_REFUSE_FRIEND', async (data) => {
     const userA = socket.user
     const userB = await User.findOne({ _id: data.userId })
-   
+
     if (!userB) {
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
@@ -156,15 +163,20 @@ const couple = catchAsync(async (socket, io) => {
       message: 'Từ chối kết đôi thành công!'
     })
 
+    const userIdB = userB.id
+    const socketId = usersOnline.getSocketId(userIdB)
+
     socket.emit('SERVER_RETURN_USER_REFUSE_ACCEPT', {
       myUserId: userA.id,
       yourUserId: userB.id
     })
 
-    socket.broadcast.emit('SERVER_RETURN_USER_REFUSE_REQUEST', {
-      myUserId: userB.id,
-      yourUserId: userA.id
-    })
+    if (socketId) {
+      socket.to(socketId).emit('SERVER_RETURN_USER_REFUSE_REQUEST', {
+        myUserId: userB.id,
+        yourUserId: userA.id
+      })
+    }
   })
 
   //A chấp nhận yêu cầu của B
@@ -194,7 +206,7 @@ const couple = catchAsync(async (socket, io) => {
     })
     const newCouple = await Couple.create({
       userIdA,
-      userIdB,
+      userIdB
     })
     await newCouple.save()
 
@@ -217,6 +229,20 @@ const couple = catchAsync(async (socket, io) => {
         }
       }
     )
+
+    const socketId = usersOnline.getSocketId(userIdB)
+
+    socket.emit('SERVER_RETURN_USER_ACCEPT_ACCEPT', {
+      myUserId: userA.id,
+      yourUserId: userB.id
+    })
+
+    if (socketId) {
+      socket.to(socketId).emit('SERVER_RETURN_USER_REQUEST_REQUEST', {
+        myUserId: userB.id,
+        yourUserId: userA.id
+      })
+    }
   })
 })
 module.exports = {

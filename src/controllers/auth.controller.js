@@ -89,7 +89,7 @@ const confirmOtp = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body
 
-  const user = await User.findOne({ email: email }).select("+password")
+  const user = await User.findOne({ email: email }).select('+password')
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email hoặc Password không chính xác.')
   }
@@ -189,12 +189,18 @@ const profile = catchAsync(async (req, res) => {
   const { email } = req.user
   const user = await User.findOne({ email: email }).populate({
     path: 'coupleId',
-    populate:'userIdA userIdB'
+    populate: 'userIdA userIdB'
   })
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
   }
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', user))
+
+  const userObj = user.toObject()
+  if (!userObj.coupleId) {
+    userObj.coupleId = null
+  }
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', userObj))
 })
 
 const sendOtp = catchAsync(async (req, res) => {
@@ -249,5 +255,5 @@ module.exports = {
   resetPassword,
   profile,
   editProfile,
-  sendOtp,
+  sendOtp
 }

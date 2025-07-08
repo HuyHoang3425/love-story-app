@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Pet = require('./pet.model')
 
 const coupleSchema = new mongoose.Schema(
   {
@@ -23,5 +24,11 @@ const coupleSchema = new mongoose.Schema(
     timestamps: true
   }
 )
+coupleSchema.post('save', async function () {
+  const existedPet = await Pet.findOne({ coupleId: this.id })
+  if (!existedPet) {
+    await Pet.create({ coupleId: this.id })
+  }
+})
 
 module.exports = mongoose.model('Couple', coupleSchema)
