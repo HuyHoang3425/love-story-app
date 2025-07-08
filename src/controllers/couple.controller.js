@@ -1,9 +1,11 @@
 const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
-const { User, Couple } = require('../models/index')
+const { User, Couple ,Pet} = require('../models/index')
+const { updateOne } = require('../models/user.model')
 
-const request = catchAsync(async (req, res) => {
+
+const connect = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id).select('username acceptFriends requestFriends coupleId').populate({
     path: 'coupleId',
     select: 'userIdA userIdB'
@@ -34,11 +36,14 @@ const request = catchAsync(async (req, res) => {
 const getInfoCouple = catchAsync(async (req, res) => {
   const id = req.user.id
   const user = await User.findById(id).select('coupleId')
-  const couple = await Couple.findById(user.coupleId)
+
   if (!user.coupleId) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
   }
 
+  const couple = await Couple.findById(user.coupleId)
+    .populate('userIdA', 'username avatar')
+    .populate('userIdB', 'username avatar')
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
@@ -49,23 +54,51 @@ const getInfoCouple = catchAsync(async (req, res) => {
 const editInfoCouple = catchAsync(async (req, res) => {
   const id = req.user.id
   const user = await User.findById(id).select('coupleId')
-
-  const couple = await Couple.findById(user.coupleId)
   if (!user.coupleId) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
   }
 
+  const couple = await Couple.findById(user.coupleId)
+    .populate('userIdA', 'username avatar')
+    .populate('userIdB', 'username avatar')
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
-  
+
   Object.assign(couple, req.body)
   await couple.save()
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Cập nhật thông tin Couple thành công.', { couple }))
 })
 
+const disconnect = catchAsync(async (req, res) => {
+  const id = req.user.id
+  const userA = await User.findById(id).select('coupleId coupleCode')
+  if (!userA.coupleId) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
+  }
+
+  const couple = await Couple.findById(userA.coupleId)
+  if (!couple) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
+  }
+
+  const userB = await User.findById(couple.userIdA.toString() === id ? couple.userIdB : couple.userIdA)
+  
+  userA.coupleId = undefined
+  userB.coupleId = undefined
+  await userA.save()
+  await userB.save()
+
+  await Pet.deleteOne({ coupleId: couple.id })
+  await Couple.deleteOne({_id:couple.id})
+  
+  
+  res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Huỷ kết nối thành công.'))
+})
+
 module.exports = {
-  request,
+  connect,
+  disconnect,
   getInfoCouple,
   editInfoCouple
 }

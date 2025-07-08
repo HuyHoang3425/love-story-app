@@ -194,7 +194,13 @@ const profile = catchAsync(async (req, res) => {
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'vui lòng đăng nhập.')
   }
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', user))
+
+  const userObj = user.toObject()
+  if (!userObj.coupleId) {
+    userObj.coupleId = null
+  }
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', userObj))
 })
 
 const sendOtp = catchAsync(async (req, res) => {
