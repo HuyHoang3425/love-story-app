@@ -30,7 +30,7 @@ const petSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true 
+    timestamps: true
   }
 )
 

@@ -12,7 +12,4 @@ coupleRouter.get('/', auth, CoupleController.getInfoCouple)
 
 coupleRouter.patch('/', auth, CoupleController.editInfoCouple)
 
-
-
-
 module.exports = coupleRouter
