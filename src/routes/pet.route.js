@@ -5,6 +5,10 @@ const { PetValidation } = require('../validations')
 const { PetController } = require('../controllers/index')
 const { auth, authCouple, validate } = require('../middlewares')
 
-petRouter.patch('/', auth, authCouple, validate(PetValidation), PetController.editPet)
+petRouter.get('/', auth, authCouple, PetController.getPet)
 
-module.exports = coupleRouter
+petRouter.patch('/', auth, authCouple, validate(PetValidation.editPet), PetController.editPet)
+
+petRouter.post('/', auth, authCouple, PetController.feedPet)
+
+module.exports = petRouter
