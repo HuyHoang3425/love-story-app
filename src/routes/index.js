@@ -4,7 +4,7 @@ const userRouter = require('./user.route')
 const authRouter = require('./auth.route')
 const coupleRouter = require('./couple.route')
 const petRouter = require('./pet.route')
-const footRouter = require('./foot.route')
+const foodRouter = require('./food.route')
 
 const router = express.Router()
 
@@ -16,6 +16,6 @@ router.use('/couple', coupleRouter)
 
 router.use('/pet', petRouter)
 
-router.use('/food', footRouter)
+router.use('/food', foodRouter)
 
 module.exports = router

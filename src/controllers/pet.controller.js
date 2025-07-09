@@ -18,15 +18,16 @@ const getPet = catchAsync(async (req, res) => {
 const editPet = catchAsync(async (req, res) => {
   const { name } = req.body
   const user = await User.findById(req.user.id).select('coupleId')
-  await Pet.updateOne(
+  const pet = await Pet.findOneAndUpdate(
     {
       coupleId: user.coupleId
     },
     {
       name: name
-    }
+    },
+    { new: true }
   )
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đổi tên cho Pet thành công.'))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đổi tên cho Pet thành công.', { pet }))
 })
 
 const feedPet = catchAsync(async (req, res) => {
@@ -44,17 +45,16 @@ const feedPet = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Thức ăn không hợp lệ.')
   }
 
+  if (pet.hunger == 100) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Pet của bạn đã no.')
+  }
+
   if (couple.coin < food.price) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn không có đủ tiền.')
   }
   couple.coin -= food.price
   await couple.save()
 
-  if (pet.hunger == 100) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Pet của bạn đã no.')
-  }
-
-  user.coin = user.coin - food.price
   pet.hunger = Math.min(pet.hunger + food.nutritionValue, 100)
   pet.happiness = Math.min(pet.happiness + food.happinessValue, 100)
   pet.lastFedAt = new Date()

@@ -3,8 +3,23 @@ const { Food } = require('../models')
 const { catchAsync, response, ApiError } = require('../utils')
 
 const getFood = catchAsync(async (req, res) => {
-  const foods = await Food.find({})
-  return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lấy danh sách món ăn thành công.', { foods }))
+  const { limit = 10, page = 1 } = req.query
+  const skip = (+page - 1) * +limit
+  const query = {}
+
+  const [foods, totalFoods] = await Promise.all([
+    Food.find(query).skip(skip).limit(+limit).sort({ createdAt: -1 }),
+    Food.countDocuments(query)
+  ])
+
+  return res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy danh sách món ăn thành công.', {
+      foods,
+      totalFoods,
+      totalPages: Math.ceil(totalFoods / +limit),
+      currentPage: +page
+    })
+  )
 })
 
 const createFood = catchAsync(async (req, res) => {
@@ -38,6 +53,12 @@ const editFood = catchAsync(async (req, res) => {
 
 const deleteFood = catchAsync(async (req, res) => {
   const { foodId } = req.params
+
+  const food = await Food.findById(foodId)
+  if (!food) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Món ăn không tồn tại.')
+  }
+
   await Food.findByIdAndDelete(foodId)
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá món ăn thành công.'))
 })
