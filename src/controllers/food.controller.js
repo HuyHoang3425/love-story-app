@@ -1,5 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 const { Food } = require('../models')
+
 const { catchAsync, response, ApiError } = require('../utils')
 
 const getFood = catchAsync(async (req, res) => {

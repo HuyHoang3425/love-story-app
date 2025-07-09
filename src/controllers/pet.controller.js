@@ -1,7 +1,11 @@
 const { StatusCodes } = require('http-status-codes')
 
-const { Pet, User, Couple, Food, FeedingLog } = require('../models')
+const { getIO } = require('../socket')
+const feedPetHandel = require('../socket/handlers/feedPet.handle')
 const { catchAsync, response, ApiError } = require('../utils')
+const { Pet, User, Couple, Food, FeedingLog } = require('../models')
+const { Socket } = require('socket.io')
+
 
 const getPet = catchAsync(async (req, res) => {
   const pet = await Pet.findOne({ coupleId: req.user.coupleId })
@@ -31,6 +35,7 @@ const editPet = catchAsync(async (req, res) => {
 })
 
 const feedPet = catchAsync(async (req, res) => {
+  const io = getIO()
   const user = req.user
   const { foodId } = req.body
   const couple = await Couple.findById(user.coupleId)
@@ -68,6 +73,15 @@ const feedPet = catchAsync(async (req, res) => {
     fedAt: new Date(),
     value: food.nutritionValue
   })
+
+  const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
+  const data = {
+    coin:couple.coin,
+    hunger:pet.hunger,
+    happiness:pet.happiness 
+  }
+  feedPetHandel(io,receiverId,data)
+
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Cho Pet ăn thành công.', { pet }))
 })
 module.exports = {
