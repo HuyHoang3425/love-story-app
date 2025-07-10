@@ -4,8 +4,10 @@ const coupleHandle = require('./handlers/couple.handle')
 const { authSocket } = require('../middlewares/')
 const { usersOnline } = require('../utils')
 
+let io = null
+
 module.exports.initSocket = (server) => {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: { origin: '*' }
   })
 
@@ -24,3 +26,8 @@ module.exports.initSocket = (server) => {
     })
   })
 }
+
+module.exports.getIO = () =>{
+  return io
+}
+ 
