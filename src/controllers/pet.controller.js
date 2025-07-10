@@ -4,7 +4,7 @@ const { getIO } = require('../socket')
 const feedPetHandel = require('../socket/handlers/feedPet.handle')
 const { catchAsync, response, ApiError } = require('../utils')
 const { Pet, User, Couple, Food, FeedingLog } = require('../models')
-const { Socket } = require('socket.io')
+
 
 
 const getPet = catchAsync(async (req, res) => {
