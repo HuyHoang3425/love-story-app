@@ -21,5 +21,4 @@ router.use('/food', foodRouter)
 
 router.use('/question', questionRouter)
 
-
 module.exports = router

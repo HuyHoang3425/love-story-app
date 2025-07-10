@@ -29,13 +29,13 @@ const dailyQuestionSchema = new mongoose.Schema(
     userBAnsweredAt: {
       type: Date
     },
-    isCompleted:{
-      type:Boolean,
-      default:false,
+    isCompleted: {
+      type: Boolean,
+      default: false
     }
   },
   {
-    timestamps: true 
+    timestamps: true
   }
 )
 

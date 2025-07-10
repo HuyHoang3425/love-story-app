@@ -3,43 +3,41 @@ const { StatusCodes } = require('http-status-codes')
 const { catchAsync, response, ApiError } = require('../utils')
 const { Question, DailyQuestion } = require('../models')
 
-
-
-const getQuestion = catchAsync(async (req,res) => {
+const getQuestion = catchAsync(async (req, res) => {
   const questions = await Question.find()
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lấy câu hỏi thành công.', { questions }))
 })
 
-const createQuestion = catchAsync(async (req,res) => {
- const newQuestion = await Question.create(req.body)
- res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Tạo câu hỏi thành công.', { newQuestion }))
+const createQuestion = catchAsync(async (req, res) => {
+  const newQuestion = await Question.create(req.body)
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Tạo câu hỏi thành công.', { newQuestion }))
 })
 
-const editQuestion = catchAsync(async (req,res) => {
+const editQuestion = catchAsync(async (req, res) => {
   const { questionId } = req.params
   const question = await Question.findById(questionId)
-  if(!question){
+  if (!question) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Câu hỏi không tồn tại.')
   }
 
-  const update = await Question.findByIdAndUpdate(questionId,req.body,{new:true})
+  const update = await Question.findByIdAndUpdate(questionId, req.body, { new: true })
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Cập nhật câu hỏi thành công.', { update }))
 })
 
-const deleteQuestion = catchAsync(async (req,res) => {
+const deleteQuestion = catchAsync(async (req, res) => {
   const { questionId } = req.params
   const question = await Question.findById(questionId)
-  if(!question){
+  if (!question) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Câu hỏi không tồn tại.')
   }
 
-  await Question.deleteOne({_id:questionId})
+  await Question.deleteOne({ _id: questionId })
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá câu hỏi thành công.'))
 })
 
 const dailyQuestion = catchAsync(async (req, res) => {
   const { answer, questionId } = req.body
-  const user = req.user 
+  const user = req.user
   let log = await DailyQuestion.findOne({
     coupleId: user.coupleId,
     date: today
@@ -73,7 +71,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
 
   const updatedLog = await DailyQuestion.findByIdAndUpdate(log._id, updateData, { new: true })
 
-  return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog,  }))
+  return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog }))
 })
 
 module.exports = {
@@ -81,5 +79,5 @@ module.exports = {
   createQuestion,
   editQuestion,
   deleteQuestion,
-  dailyQuestion,
+  dailyQuestion
 }
