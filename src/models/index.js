@@ -3,5 +3,6 @@ module.exports = {
   Couple: require('./couple.model'),
   Pet: require('./pet.model'),
   Food: require('./food.model'),
-  FeedingLog: require('./feeding-log.model')
+  FeedingLog: require('./feeding-log.model'),
+  Note: require('./note.model')
 }
