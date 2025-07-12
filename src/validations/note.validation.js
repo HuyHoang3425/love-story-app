@@ -3,22 +3,36 @@ const joi = require('joi')
 const { objectId } = require('./custom.validation')
 
 const getNotesQuery = {
-  query: joi.object({
-    year: joi.number().integer().min(2025).max(9999).optional().messages({
-      'number.base': 'Năm phải là số.',
-      'number.min': 'Năm không hợp lệ.'
-    }),
-    month: joi.number().integer().min(1).max(12).optional().messages({
-      'number.base': 'Tháng phải là số.',
-      'number.min': 'Tháng không hợp lệ.',
-      'number.max': 'Tháng không hợp lệ.'
-    }),
-    day: joi.number().integer().min(1).max(31).optional().messages({
-      'number.base': 'Ngày phải là số.',
-      'number.min': 'Ngày không hợp lệ.',
-      'number.max': 'Ngày không hợp lệ.'
+  query: joi
+    .object({
+      year: joi.number().integer().min(2025).max(9999).optional().messages({
+        'number.base': 'Năm phải là số.',
+        'number.min': 'Năm không hợp lệ.'
+      }),
+      month: joi.number().integer().min(1).max(12).optional().messages({
+        'number.base': 'Tháng phải là số.',
+        'number.min': 'Tháng không hợp lệ.',
+        'number.max': 'Tháng không hợp lệ.'
+      }),
+      day: joi.number().integer().min(1).max(31).optional().messages({
+        'number.base': 'Ngày phải là số.',
+        'number.min': 'Ngày không hợp lệ.',
+        'number.max': 'Ngày không hợp lệ.'
+      })
     })
-  })
+    .custom((value, helpers) => {
+      const { year, month, day } = value
+
+      const hasDay = !!day
+      const hasMonth = !!month
+      const hasYear = !!year
+
+      if ((hasDay || hasMonth || hasYear) && !(hasMonth && hasYear)) {
+        return helpers.message('Dữ liệu chưa rõ là ngày nào hay tháng nào.')
+      }
+
+      return value
+    })
 }
 
 const createNote = {
