@@ -1,6 +1,5 @@
 const joi = require('joi')
 
-
 const getNotesQuery = {
   query: joi.object({
     year: joi.number().integer().min(2025).max(9999).optional().messages({

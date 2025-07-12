@@ -14,7 +14,6 @@ module.exports.initSocket = (server) => {
   io.use(authSocket)
 
   io.on('connection', (socket) => {
-
     usersOnline.addUser(socket.user.id, socket.id)
 
     coupleHandle.couple(socket, io)

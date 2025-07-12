@@ -27,7 +27,6 @@ const getNotes = catchAsync(async (req, res) => {
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, message, { notes }))
 })
 
-
 const createNote = catchAsync(async (req, res) => {
   const { content, date } = req.body
   const user = req.user

@@ -71,5 +71,5 @@ const deleteFoot = {
 module.exports = {
   createFood,
   editFood,
-  deleteFoot,
+  deleteFoot
 }

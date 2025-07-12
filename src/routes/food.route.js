@@ -29,6 +29,6 @@ footRouter.patch(
   FoodController.editFood
 )
 
-footRouter.delete('/:foodId', auth, authAdmin,validate(FoodValidation.deleteFoot), FoodController.deleteFood)
+footRouter.delete('/:foodId', auth, authAdmin, validate(FoodValidation.deleteFoot), FoodController.deleteFood)
 
 module.exports = footRouter
