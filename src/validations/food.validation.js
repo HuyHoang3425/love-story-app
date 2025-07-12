@@ -1,5 +1,7 @@
 const joi = require('joi')
 
+const { objectId } = require('./custom.validation')
+
 const createFood = {
   body: joi.object({
     name: joi.string().trim().min(1).max(100).required().messages({
@@ -31,15 +33,11 @@ const createFood = {
 
 const editFood = {
   params: joi.object({
-    foodId: joi
-      .string()
-      .pattern(/^[0-9a-fA-F]{24}$/)
-      .required()
-      .messages({
-        'string.pattern.base': 'foodId không hợp lệ.',
-        'string.empty': 'foodId không được để trống.',
-        'any.required': 'foodId là bắt buộc.'
-      })
+    foodId: joi.string().custom(objectId).required().messages({
+      'string.pattern.base': 'foodId không hợp lệ.',
+      'string.empty': 'foodId không được để trống.',
+      'any.required': 'foodId là bắt buộc.'
+    })
   }),
   body: joi
     .object({
@@ -57,15 +55,11 @@ const editFood = {
 
 const deleteFoot = {
   params: joi.object({
-    foodId: joi
-      .string()
-      .pattern(/^[0-9a-fA-F]{24}$/)
-      .required()
-      .messages({
-        'string.pattern.base': 'foodId không hợp lệ.',
-        'string.empty': 'foodId không được để trống.',
-        'any.required': 'foodId là bắt buộc.'
-      })
+    foodId: joi.string().custom(objectId).required().messages({
+      'string.pattern.base': 'foodId không hợp lệ.',
+      'string.empty': 'foodId không được để trống.',
+      'any.required': 'foodId là bắt buộc.'
+    })
   })
 }
 module.exports = {

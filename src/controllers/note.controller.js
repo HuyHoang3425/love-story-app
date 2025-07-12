@@ -10,6 +10,13 @@ const getNotes = catchAsync(async (req, res) => {
   let filter = { coupleId }
   let message = 'Lấy danh sách ghi chú thành công.'
 
+  const hasDay = !!day
+  const hasMonth = !!month
+  const hasYear = !!year
+  if ((hasDay || hasMonth || hasYear) && !(hasMonth && hasYear)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Dữ liệu chưa rõ là ngày nào hay tháng nào.')
+  }
+
   if (year && month) {
     const start = new Date(year, month - 1, day || 1)
     const end = day ? new Date(year, month - 1, Number(day) + 1) : new Date(year, month, 1)

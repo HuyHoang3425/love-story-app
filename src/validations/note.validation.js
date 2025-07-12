@@ -1,5 +1,7 @@
 const joi = require('joi')
 
+const { objectId } = require('./custom.validation')
+
 const getNotesQuery = {
   query: joi.object({
     year: joi.number().integer().min(2025).max(9999).optional().messages({
@@ -34,15 +36,11 @@ const createNote = {
 
 const editNote = {
   params: joi.object({
-    noteId: joi
-      .string()
-      .pattern(/^[0-9a-fA-F]{24}$/)
-      .required()
-      .messages({
-        'string.pattern.base': 'NoteId không hợp lệ.',
-        'string.empty': 'NoteId không được để trống.',
-        'any.required': 'NoteId là bắt buộc.'
-      })
+    noteId: joi.string().custom(objectId).required().messages({
+      'string.pattern.base': 'NoteId không hợp lệ.',
+      'string.empty': 'NoteId không được để trống.',
+      'any.required': 'NoteId là bắt buộc.'
+    })
   }),
   body: joi.object({
     content: joi.string().required().messages({
@@ -53,15 +51,11 @@ const editNote = {
 }
 const deleteNote = {
   params: joi.object({
-    noteId: joi
-      .string()
-      .pattern(/^[0-9a-fA-F]{24}$/)
-      .required()
-      .messages({
-        'string.pattern.base': 'NoteId không hợp lệ.',
-        'string.empty': 'NoteId không được để trống.',
-        'any.required': 'NoteId là bắt buộc.'
-      })
+    noteId: joi.string().custom(objectId).required().messages({
+      'string.pattern.base': 'NoteId không hợp lệ.',
+      'string.empty': 'NoteId không được để trống.',
+      'any.required': 'NoteId là bắt buộc.'
+    })
   })
 }
 
