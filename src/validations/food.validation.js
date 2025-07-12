@@ -30,6 +30,17 @@ const createFood = {
 }
 
 const editFood = {
+  params: joi.object({
+    foodId: joi
+      .string()
+      .pattern(/^[0-9a-fA-F]{24}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'foodId không hợp lệ.',
+        'string.empty': 'foodId không được để trống.',
+        'any.required': 'foodId là bắt buộc.'
+      })
+  }),
   body: joi
     .object({
       name: joi.string().trim().min(1).max(100).optional(),
@@ -44,7 +55,21 @@ const editFood = {
     })
 }
 
+const deleteFoot = {
+  params: joi.object({
+    foodId: joi
+      .string()
+      .pattern(/^[0-9a-fA-F]{24}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'foodId không hợp lệ.',
+        'string.empty': 'foodId không được để trống.',
+        'any.required': 'foodId là bắt buộc.'
+      })
+  })
+}
 module.exports = {
   createFood,
-  editFood
+  editFood,
+  deleteFoot,
 }

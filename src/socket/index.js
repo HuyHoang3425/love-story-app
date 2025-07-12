@@ -14,7 +14,6 @@ module.exports.initSocket = (server) => {
   io.use(authSocket)
 
   io.on('connection', (socket) => {
-    console.log('Socket connected:', socket.id)
 
     usersOnline.addUser(socket.user.id, socket.id)
 
@@ -22,7 +21,6 @@ module.exports.initSocket = (server) => {
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)
-      console.log('Socket disconnected:', socket.id)
     })
   })
 }

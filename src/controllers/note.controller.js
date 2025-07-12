@@ -4,20 +4,29 @@ const { catchAsync, response, ApiError } = require('../utils')
 const { Note } = require('../models')
 
 const getNotes = catchAsync(async (req, res) => {
-  const user = req.user
-  const notes = await Note.find({
-    coupleId: user.coupleId
-  })
+  const { day, month, year } = req.query
+  const coupleId = req.user.coupleId
 
-  if (notes.length === 0) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Couple chưa có ghi chú nào!!!')
+  let filter = { coupleId }
+  let message = 'Lấy danh sách ghi chú thành công.'
+
+  if (year && month) {
+    const start = new Date(year, month - 1, day || 1)
+    const end = day ? new Date(year, month - 1, Number(day) + 1) : new Date(year, month, 1)
+
+    filter.date = { $gte: start, $lt: end }
+    message = day ? 'Lấy danh sách ghi chú theo ngày thành công.' : 'Lấy danh sách ghi chú theo tháng thành công.'
   }
-  res.status(StatusCodes.OK).json(
-    response(StatusCodes.OK, 'Lấy danh sách ghi chú thành công.', {
-      notes
-    })
-  )
+
+  const notes = await Note.find(filter)
+
+  if (!notes.length) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy ghi chú nào.')
+  }
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, message, { notes }))
 })
+
 
 const createNote = catchAsync(async (req, res) => {
   const { content, date } = req.body
@@ -45,8 +54,6 @@ const editNote = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Ghi chú không tồn tại.')
   }
 
-  console.log(note.coupleId)
-  console.log(user.coupleId)
   if (note.coupleId.toString() !== user.coupleId.toString()) {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Không có quyền chỉnh sửa ghi chú này.')
   }

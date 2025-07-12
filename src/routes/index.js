@@ -15,10 +15,10 @@ router.use('/auth', authRouter)
 
 router.use('/couple', coupleRouter)
 
-router.use('/pet', petRouter)
+router.use('/pets', petRouter)
 
-router.use('/food', foodRouter)
+router.use('/foods', foodRouter)
 
-router.use('/note', noteRouter)
+router.use('/notes', noteRouter)
 
 module.exports = router
