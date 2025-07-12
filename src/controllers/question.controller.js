@@ -35,43 +35,124 @@ const deleteQuestion = catchAsync(async (req, res) => {
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá câu hỏi thành công.'))
 })
 
-const dailyQuestion = catchAsync(async (req, res) => {
-  const { answer, questionId } = req.body
+const getDailyQuestion = catchAsync(async (req, res) => {
   const user = req.user
-  let log = await DailyQuestion.findOne({
+  const today = new Date().toISOString().slice(0, 10)
+  const dailyQuestion = await DailyQuestion.findOne({
     coupleId: user.coupleId,
     date: today
   })
 
-  if (!log) {
-    const newLog = await DailyQuestion.create({
-      coupleId: user.coupleId,
-      questionId,
-      answerUserA: user._id.equals(user.coupleId.userIdA) ? answer : undefined,
-      userAAnsweredAt: user._id.equals(user.coupleId.userIdA) ? new Date() : undefined,
-      answerUserB: user._id.equals(user.coupleId.userIdB) ? answer : undefined,
-      userBAnsweredAt: user._id.equals(user.coupleId.userIdB) ? new Date() : undefined,
-      date: today
+  if (!dailyQuestion) {
+    const usedQuestionIds = await DailyQuestion.find({ coupleId: user.coupleId }).distinct('questionId')
+
+    const unusedQuestions = await Question.find({
+      _id: { $nin: usedQuestionIds }
     })
 
-    return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { newLog }))
+    if (unusedQuestions.length === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã trả lời hết câu hỏi, chúng tôi sẽ cập nhật thêm!')
+    }
+
+    const randomIndex = Math.floor(Math.random() * unusedQuestions.length)
+    const randomQuestion = unusedQuestions[randomIndex]
+
+    daily = await DailyQuestion.create({
+      coupleId: user.coupleId,
+      questionId: randomQuestion._id,
+      date: new Date(today)
+    })
+
+    daily.question = randomQuestion
+  }
+  res
+    .status(StatusCodes.OK)
+    .json(response(StatusCodes.OK, 'Lấy câu hỏi hôm nay thành công.', { question: daily.question }))
+})
+
+const dailyQuestion = catchAsync(async (req, res) => {
+  const { answer } = req.body
+  const user = req.user
+  const today = new Date().toISOString().slice(0, 10)
+  let log = await DailyQuestion.findOne({
+    coupleId: user.coupleId,
+    date: today
+  }).populate({
+    path: 'coupleId',
+    select: 'userIdA userIdB'
+  })
+
+  if (!log) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy câu hỏi hôm nay.')
   }
 
-  const updateData = {}
-  if (user._id.equals(log.coupleId.userIdA)) {
-    updateData.answerUserA = answer
-    updateData.userAAnsweredAt = new Date()
-  } else if (user._id.equals(log.coupleId.userIdB)) {
-    updateData.answerUserB = answer
-    updateData.userBAnsweredAt = new Date()
-  } else {
-    throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn không thuộc couple này.')
-  }
-  updateData.isCompleted = true
+  const checkIdA = user.id.toString() === log.coupleId.userIdA.toString()
+  const checkIdB = user.id.toString() === log.coupleId.userIdB.toString()
 
-  const updatedLog = await DailyQuestion.findByIdAndUpdate(log._id, updateData, { new: true })
+  if (log.answerUserA && checkIdA) {
+    throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã trả lời rồi.')
+  }
+
+  if (log.answerUserB && checkIdB) {
+    throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã trả lời rồi.')
+  }
+
+  if (checkIdA) {
+    log.answerUserA = answer.trim()
+    log.userAAnsweredAt = new Date()
+  } else if (checkIdB) {
+    log.answerUserB = answer.trim()
+    log.userBAnsweredAt = new Date()
+  }
+
+  if (log.answerUserA && log.answerUserB) {
+    log.isCompleted = true
+  }
+
+  const updatedLog = await log.save()
 
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog }))
+})
+
+const getDailyQuestionFeedback = catchAsync(async (req, res) => {
+  const user = req.user
+  const today = new Date().toISOString().slice(0, 10)
+  let log = await DailyQuestion.findOne({
+    coupleId: user.coupleId,
+    date: today
+  }).populate({
+    path: 'coupleId',
+    select: 'userIdA userIdB'
+  })
+
+  if (!log) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy câu hỏi hôm nay.')
+  }
+
+  const checkIdA = user.id.toString() === log.coupleId.userIdA.toString()
+  const checkIdB = user.id.toString() === log.coupleId.userIdB.toString()
+
+  let partnerAnswer = null
+  if (checkIdA) {
+    partnerAnswer = log.answerUserB
+  } else if (checkIdB) {
+    partnerAnswer = log.answerUserA
+  }
+
+  const currentUserAnswer = checkIdA ? log.answerUserA : log.answerUserB
+  if (!currentUserAnswer) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Bạn cần trả lời câu hỏi trước khi xem câu trả lời của cậu ấy.')
+  }
+
+  if (!partnerAnswer) {
+    return res
+      .status(StatusCodes.OK)
+      .json(response(StatusCodes.OK, 'Cậu ấy chưa trả lời câu hỏi hôm nay.', { partnerAnswer: null }))
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .json(response(StatusCodes.OK, 'Lấy câu trả lời của cậu ấy thành công.', { partnerAnswer }))
 })
 
 module.exports = {
@@ -79,5 +160,7 @@ module.exports = {
   createQuestion,
   editQuestion,
   deleteQuestion,
-  dailyQuestion
+  dailyQuestion,
+  getDailyQuestion,
+  getDailyQuestionFeedback
 }

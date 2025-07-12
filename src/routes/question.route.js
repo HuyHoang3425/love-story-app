@@ -23,8 +23,24 @@ questionRouter.put(
   QuestionController.editQuestion
 )
 
-questionRouter.delete('/:questionId', auth, authAdmin, QuestionController.deleteQuestion)
+questionRouter.delete(
+  '/:questionId',
+  auth,
+  authAdmin,
+  validate(QuestionValidation.deleteQuestion),
+  QuestionController.deleteQuestion
+)
 
-questionRouter.get('/daily', auth, authCouple, QuestionController.dailyQuestion)
+questionRouter.post(
+  '/daily',
+  auth,
+  authCouple,
+  validate(QuestionValidation.dailyQuestion),
+  QuestionController.dailyQuestion
+)
+
+questionRouter.get('/daily', auth, authCouple, QuestionController.getDailyQuestion)
+
+questionRouter.get('/daily/feedback', auth, authCouple, QuestionController.getDailyQuestionFeedback)
 
 module.exports = questionRouter
