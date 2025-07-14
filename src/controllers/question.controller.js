@@ -38,36 +38,35 @@ const deleteQuestion = catchAsync(async (req, res) => {
 const getDailyQuestion = catchAsync(async (req, res) => {
   const user = req.user
   const today = new Date().toISOString().slice(0, 10)
-  const dailyQuestion = await DailyQuestion.findOne({
+
+  let dailyQuestion = await DailyQuestion.findOne({
     coupleId: user.coupleId,
     date: today
-  })
+  }).populate('questionId')
 
   if (!dailyQuestion) {
     const usedQuestionIds = await DailyQuestion.find({ coupleId: user.coupleId }).distinct('questionId')
-
-    const unusedQuestions = await Question.find({
-      _id: { $nin: usedQuestionIds }
-    })
+    const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
 
     if (unusedQuestions.length === 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã trả lời hết câu hỏi, chúng tôi sẽ cập nhật thêm!')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Hết câu hỏi!')
     }
 
-    const randomIndex = Math.floor(Math.random() * unusedQuestions.length)
-    const randomQuestion = unusedQuestions[randomIndex]
-
-    daily = await DailyQuestion.create({
+    const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
+    dailyQuestion = await DailyQuestion.create({
       coupleId: user.coupleId,
       questionId: randomQuestion._id,
       date: new Date(today)
     })
 
-    daily.question = randomQuestion
+    dailyQuestion.questionId = randomQuestion
   }
-  res
-    .status(StatusCodes.OK)
-    .json(response(StatusCodes.OK, 'Lấy câu hỏi hôm nay thành công.', { question: daily.question }))
+
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy câu hỏi hôm nay thành công.', {
+      question: dailyQuestion.questionId
+    })
+  )
 })
 
 const dailyQuestion = catchAsync(async (req, res) => {

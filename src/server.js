@@ -10,7 +10,7 @@ const { StatusCodes } = require('http-status-codes')
 
 const router = require('./routes')
 const socket = require('./socket')
-const { response } = require('./utils')
+const { response, scheduleDailyQuestion } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 
@@ -73,6 +73,15 @@ cron.schedule('*/10 * * * *', async () => {
     logger.error(`[CRON] Ping failed: ${error}`)
   }
 })
+
+cron.schedule(
+  '0 0 * * *', // chạy lúc 00:00 mỗi ngày
+  scheduleDailyQuestion.cleanIncompleteQuestions,
+  {
+    timezone: 'Asia/Ho_Chi_Minh'
+  }
+)
+
 app.all('{/*path}', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy tài nguyên.'))
 })
