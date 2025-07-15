@@ -4,5 +4,7 @@ module.exports = {
   CoupleController: require('./couple.controller'),
   PetController: require('./pet.controller'),
   FoodController: require('./food.controller'),
+  NoteController: require('./note.controller'),
+  FoodController: require('./food.controller'),
   QuestionController: require('./question.controller')
 }

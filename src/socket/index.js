@@ -14,15 +14,12 @@ module.exports.initSocket = (server) => {
   io.use(authSocket)
 
   io.on('connection', (socket) => {
-    console.log('Socket connected:', socket.id)
-
     usersOnline.addUser(socket.user.id, socket.id)
 
     coupleHandle.couple(socket, io)
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)
-      console.log('Socket disconnected:', socket.id)
     })
   })
 }

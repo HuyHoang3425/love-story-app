@@ -14,7 +14,6 @@ const couple = catchAsync(async (socket, io) => {
       coupleCode: data.coupleCode
     })
     if (!userB) {
-      console.log('Mã coupleCode không hợp lệ!')
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
         message: 'Mã coupleCode không hợp lệ!'
