@@ -10,7 +10,8 @@ const { StatusCodes } = require('http-status-codes')
 
 const router = require('./routes')
 const socket = require('./socket')
-const { response, scheduleDailyQuestion } = require('./utils')
+const { response } = require('./utils')
+const { scheduleDailyQuestion } = require('./jobs')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 

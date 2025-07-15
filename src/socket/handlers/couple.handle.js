@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const { User, Couple, DailyQuestion, Question } = require('../../models')
-const { usersOnline, catchAsync, scheduleDailyQuestion } = require('../../utils')
+const { usersOnline, catchAsync } = require('../../utils')
+const { scheduleDailyQuestion } = require('../../jobs')
 
 const couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
