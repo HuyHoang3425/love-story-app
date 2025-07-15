@@ -3,11 +3,6 @@ const mongoose = require('mongoose')
 
 const userMissionLogSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
     coupleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Couple',
@@ -18,17 +13,14 @@ const userMissionLogSchema = new mongoose.Schema(
       ref: 'Mission',
       required: true
     },
-    date:Date,
-    isCompleted: {
-      type: Boolean,
-      default: false
-    },
-    completedAt: {
-      type: Date
-    }
+    date: Date,
+    answerUserA: String,
+    answerUserB: String,
+    userAAnsweredAt: Date,
+    userBAnsweredAt: Date
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 )
 

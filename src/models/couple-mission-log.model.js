@@ -14,15 +14,10 @@ const coupleMissionLogSchema = new mongoose.Schema(
       required: true
     },
     date:Date,
-    userACompleted: {
+    isCompleted: {
       type: Boolean,
       default: false
     },
-    userBCompleted: {
-      type: Boolean,
-      default: false
-    },
-    completedAt: Date,
   },
   {
     timestamps: true,

@@ -11,5 +11,5 @@ const ROLE = {
 
 module.exports = {
   GENDER,
-  ROLE
+  ROLE,
 }

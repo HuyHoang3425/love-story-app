@@ -1,8 +1,13 @@
-// models/mission.model.js
 const mongoose = require('mongoose')
+
+const { MissionConstants } = require('../constants')
 
 const missionSchema = new mongoose.Schema(
   {
+    key:{
+      type:String,
+      required: true
+    },
     description: {
       type: String,
       required: true
@@ -11,17 +16,18 @@ const missionSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    isShared: {
-      type: Boolean,
-      default: false
-    },
     isActive: {
       type: Boolean,
       default: true
     },
+    type: {
+      type: String,
+      enum: MissionConstants.TYPE,
+      require: true
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 )
 
