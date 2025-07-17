@@ -82,8 +82,7 @@ const feedPet = catchAsync(async (req, res) => {
     hunger: pet.hunger,
     happiness: pet.happiness
   }
-  feedPetHandel(io, receiverId, data)
-  feedPetHandel(io, receiverId, data)
+  feedPetHandel.feedPet(io, receiverId.toString(), req.user.id, data)
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Cho Pet ăn thành công.', { pet }))
 })
