@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
-const { User, Couple } = require('../../models')
+const { User, Couple, DailyQuestion, Question } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
+const { scheduleDailyQuestion } = require('../../jobs')
 
 const couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
@@ -12,7 +13,6 @@ const couple = catchAsync(async (socket, io) => {
     const userB = await User.findOne({
       coupleCode: data.coupleCode
     })
-
     if (!userB) {
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
@@ -199,15 +199,32 @@ const couple = catchAsync(async (socket, io) => {
         message: 'Bạn đã có Couple rồi!!!'
       })
     }
-    // Từ chối kết bạn thành công
+    // thông báo kết bạn thành công
     socket.emit('SUCCESS', {
       message: 'Kết đôi thành công!'
     })
+
     const newCouple = await Couple.create({
       userIdA,
       userIdB
     })
     await newCouple.save()
+    //tạo câu hỏi đầu tiên
+    const today = new Date().toISOString().slice(0, 10)
+    const usedQuestionIds = await DailyQuestion.find({ coupleId: newCouple._id }).distinct('questionId')
+    const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
+
+    if (unusedQuestions.length > 0) {
+      const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
+      await DailyQuestion.create({
+        coupleId: newCouple._id,
+        questionId: randomQuestion._id,
+        date: new Date(today)
+      })
+    }
+
+    //toạ câu hỏi cho ngày mai
+    scheduleDailyQuestion.scheduleDailyQuestion()
 
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
     await User.updateOne(

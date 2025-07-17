@@ -4,5 +4,8 @@ module.exports = {
   Pet: require('./pet.model'),
   Food: require('./food.model'),
   FeedingLog: require('./feeding-log.model'),
-  Note: require('./note.model')
+  Note: require('./note.model'),
+  FeedingLog: require('./feeding-log.model'),
+  Question: require('./question.model'),
+  DailyQuestion: require('./daily-question.model')
 }
