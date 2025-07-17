@@ -5,6 +5,8 @@ const authRouter = require('./auth.route')
 const coupleRouter = require('./couple.route')
 const petRouter = require('./pet.route')
 const foodRouter = require('./food.route')
+const noteRouter = require('./note.route')
+const questionRouter = require('./question.route')
 const missionRouter = require('./mission.route')
 
 const router = express.Router()
@@ -21,5 +23,9 @@ router.use('/food', foodRouter)
 
 router.use('/mission', missionRouter)
 
+router.use('/notes', noteRouter)
+router.use('/food', foodRouter)
+
+router.use('/question', questionRouter)
 
 module.exports = router
