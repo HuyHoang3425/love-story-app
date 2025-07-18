@@ -5,7 +5,6 @@ const decreaseHunger = (io, userIdA, userIdB, data) => {
   const socketUserB = usersOnline.getSocketId(userIdB)
   io.to(socketUserA).emit('PET_DECREASE_HUNGER', data)
   io.to(socketUserB).emit('PET_DECREASE_HUNGER', data)
-  console.log("thanh cong")
 }
 
 module.exports = {

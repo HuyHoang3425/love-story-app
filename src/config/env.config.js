@@ -29,6 +29,10 @@ const env = {
   },
   app: {
     url: process.env.APP_URL
+  },
+  pet: {
+    hunger_minutes: process.env.HUNGER_MINUTES,
+    hunger_value: process.env.HUNGER_VALUE
   }
 }
 
