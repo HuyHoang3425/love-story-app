@@ -1,3 +1,4 @@
 module.exports = {
-  scheduleDailyQuestion: require('../jobs/scheduleDailyQuestion')
+  scheduleDailyQuestion: require('./scheduleDailyQuestion'),
+  DailyMission: require('./generateDailyMissions')
 }

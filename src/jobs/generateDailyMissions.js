@@ -1,33 +1,61 @@
-const { Mission,CoupleMissionLog, Couple } = require('../models')
-const { create } = require('../models/couple-mission-log.model')
+const cron = require('node-cron')
+const { Mission, CoupleMissionLog, Couple } = require('../models')
 
+let isStarted = false
 
 const generateDailyMissions = async () => {
-  const missions = await Mission.find({ isActive: true })
-  const couples = await Couple.find({ isActive: true })
+  if (isStarted) return
+  isStarted = true
 
-  const bulk = []
+  cron.schedule(
+    '0 23 * * *', 
+    async () => {
+      const missions = await Mission.find({ isActive: true })
+      const couples = await Couple.find({ isActive: true })
 
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate()  + 1)
+      const bulk = []
 
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      tomorrow.setHours(0, 0, 0, 0)
 
-  for (const couple of couples) {
-    for (const mission of missions) {
-      bulk.push({
-        coupleId: couple._id,
-        missionId: mission._id,
-        dateAssigned: new Date(tomorrow)
-      })
+      for (const couple of couples) {
+        for (const mission of missions) {
+          bulk.push({
+            coupleId: couple._id,
+            missionId: mission._id,
+            dateAssigned: new Date(tomorrow)
+          })
+        }
+      }
+
+      if (bulk.length > 0) {
+        await CoupleMissionLog.insertMany(bulk, { ordered: false })
+      }
+    },
+    {
+      timezone: 'Asia/Ho_Chi_Minh'
     }
-  }
-
-  if(bulk.length > 0){
-    await CoupleMissionLog.insertMany(bulk, { ordered: false }) 
-  }
+  )
 }
 
 
+const deleteYesterdayMissions = async () => {
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  yesterday.setHours(0, 0, 0, 0)
+
+  const endOfYesterday = new Date(yesterday)
+  endOfYesterday.setHours(23, 59, 59, 999)
+
+  await CoupleMissionLog.deleteMany({
+    dateAssigned: { $gte: yesterday, $lte: endOfYesterday }
+  })
+}
+
+
+
 module.exports = {
-  generateDailyMissions
+  generateDailyMissions,
+  deleteYesterdayMissions,
 }
