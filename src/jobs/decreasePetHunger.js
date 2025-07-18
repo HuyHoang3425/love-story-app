@@ -1,5 +1,6 @@
 const { Pet, Couple } = require('../models')
-const { getIO } = require('../socket')
+const socket = require('../socket') 
+const decreaseHungerHandle = require('../socket/handlers/decreaseHunger')
 
 const HUNGER_MINUTES = 1 
 const HUNGER_VALUE = 5
@@ -7,7 +8,7 @@ const HUNGER_VALUE = 5
 const decreasePetHunger = async () => {
   const pets = await Pet.find({})
   const now = new Date()
-  const io = getIO()
+  const io = socket.getIO()
 
   for (const pet of pets) {
     const lastFedAt = new Date(pet.lastFedAt || pet.createdAt)
@@ -28,9 +29,7 @@ const decreasePetHunger = async () => {
           hunger: pet.hunger,
           petId: pet.id
         }
-
-        if (couple.userIdA) io.to(couple.userIdA.toString()).emit('PET_DECREASE_HUNGER', data)
-        if (couple.userIdB) io.to(couple.userIdB.toString()).emit('PET_DECREASE_HUNGER', data)
+        decreaseHungerHandle.decreaseHunger(io,couple.userIdA,couple.userIdB,data)
       }
     }
   }
