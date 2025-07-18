@@ -29,7 +29,7 @@ const decreasePetHunger = async () => {
           hunger: pet.hunger,
           petId: pet.id
         }
-        decreaseHungerHandle.decreaseHunger(io,couple.userIdA,couple.userIdB,data)
+        decreaseHungerHandle.decreaseHunger(io,couple.userIdA.toString(),couple.userIdB.toString(),data)
       }
     }
   }
