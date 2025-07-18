@@ -83,7 +83,7 @@ cron.schedule(
   }
 )
 //Giảm đói Pet
-cron.schedule('*/15 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   await decreasePetHunger()
 })
 
