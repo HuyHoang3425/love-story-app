@@ -27,7 +27,6 @@ module.exports.initSocket = (server) => {
   })
 }
 
-module.exports.getIO = () =>{
+module.exports.getIO = () => {
   return io
 }
- 

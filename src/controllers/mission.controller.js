@@ -4,16 +4,16 @@ const { catchAsync, response, ApiError } = require('../utils')
 const { Mission } = require('../models')
 
 const getMissions = catchAsync(async (req, res) => {
-  const missions = await Mission.find({isActive:true})
+  const missions = await Mission.find({ isActive: true })
 
-  if(missions.length === 0){
+  if (missions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')
   }
-  
+
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ thành công.', { missions }))
 })
 
-const createMission= catchAsync(async (req, res) => {
+const createMission = catchAsync(async (req, res) => {
   const { description, coin, isShared } = req.body
 
   const newMission = await Mission.create({
@@ -27,10 +27,10 @@ const createMission= catchAsync(async (req, res) => {
 
 const editMission = catchAsync(async (req, res) => {
   const { description, coin, isShared } = req.body
-  const {missionId} = req.params
+  const { missionId } = req.params
 
   const mission = await Mission.findById(missionId)
-  if(!mission){
+  if (!mission) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Nhiệm vụ không tồn tại.')
   }
 
@@ -50,7 +50,7 @@ const deleteMission = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Nhiệm vụ không tồn tại.')
   }
 
-  await Mission.deleteOne({_id:missionId})
+  await Mission.deleteOne({ _id: missionId })
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá nhiệm vụ thành công.'))
 })
 
@@ -72,9 +72,9 @@ const changeActiveMision = catchAsync(async (req, res) => {
 })
 
 module.exports = {
- getMissions,
- createMission,
- editMission,
- deleteMission,
- changeActiveMision,
+  getMissions,
+  createMission,
+  editMission,
+  deleteMission,
+  changeActiveMision
 }

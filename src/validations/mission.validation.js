@@ -30,7 +30,7 @@ const editMission = {
     isShared: joi.boolean().optional().messages({
       'boolean.base': 'isShared phải là true hoặc false.'
     })
-  }),
+  })
 }
 
 const changeActiveMision = {

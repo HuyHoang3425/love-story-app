@@ -13,14 +13,14 @@ const coupleMissionLogSchema = new mongoose.Schema(
       ref: 'Mission',
       required: true
     },
-    date:Date,
+    date: Date,
     isCompleted: {
       type: Boolean,
       default: false
-    },
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 )
 

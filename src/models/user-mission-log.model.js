@@ -14,10 +14,10 @@ const userMissionLogSchema = new mongoose.Schema(
       required: true
     },
     date: Date,
-    answerUserA: String,
-    answerUserB: String,
-    userAAnsweredAt: Date,
-    userBAnsweredAt: Date
+    userIdACompleted: String,
+    userIdBCompleted: String,
+    userACompletedAt: Date,
+    userBCompletedAt: Date
   },
   {
     timestamps: true

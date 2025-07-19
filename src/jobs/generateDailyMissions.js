@@ -8,7 +8,7 @@ const generateDailyMissions = async () => {
   isStarted = true
 
   cron.schedule(
-    '0 23 * * *', 
+    '0 23 * * *',
     async () => {
       const missions = await Mission.find({ isActive: true })
       const couples = await Couple.find({ isActive: true })
@@ -39,7 +39,6 @@ const generateDailyMissions = async () => {
   )
 }
 
-
 const deleteYesterdayMissions = async () => {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
@@ -53,9 +52,7 @@ const deleteYesterdayMissions = async () => {
   })
 }
 
-
-
 module.exports = {
   generateDailyMissions,
-  deleteYesterdayMissions,
+  deleteYesterdayMissions
 }

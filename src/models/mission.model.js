@@ -4,8 +4,8 @@ const { MissionConstants } = require('../constants')
 
 const missionSchema = new mongoose.Schema(
   {
-    key:{
-      type:String,
+    key: {
+      type: String,
       required: true
     },
     description: {

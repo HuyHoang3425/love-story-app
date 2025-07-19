@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const { User, Couple, DailyQuestion, Question, Mission ,CoupleMissionLog} = require('../../models')
+const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
 const { scheduleDailyQuestion, DailyMission } = require('../../jobs')
 
@@ -250,7 +250,6 @@ const couple = catchAsync(async (socket, io) => {
       (async () => await DailyMission.generateDailyMissions())()
     ])
 
-   
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
     await User.updateOne(
       { _id: userIdA },

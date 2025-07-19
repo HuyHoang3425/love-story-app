@@ -3,14 +3,21 @@ const noteRouter = express.Router()
 
 const { NoteController } = require('../controllers')
 const { NoteValidation } = require('../validations')
-const { auth, authCouple, validate } = require('../middlewares')
+const { auth, authCouple, validate, loginMission } = require('../middlewares')
 
-noteRouter.get('/', auth, authCouple, validate(NoteValidation.getNotesQuery), NoteController.getNotes)
+noteRouter.get('/', auth, authCouple, loginMission, validate(NoteValidation.getNotesQuery), NoteController.getNotes)
 
-noteRouter.post('/', auth, authCouple, validate(NoteValidation.createNote), NoteController.createNote)
+noteRouter.post('/', auth, authCouple, loginMission, validate(NoteValidation.createNote), NoteController.createNote)
 
-noteRouter.put('/:noteId', auth, authCouple, validate(NoteValidation.editNote), NoteController.editNote)
+noteRouter.put('/:noteId', auth, authCouple, loginMission, validate(NoteValidation.editNote), NoteController.editNote)
 
-noteRouter.delete('/:noteId', auth, authCouple, validate(NoteValidation.deleteNote), NoteController.deleteNote)
+noteRouter.delete(
+  '/:noteId',
+  auth,
+  authCouple,
+  loginMission,
+  validate(NoteValidation.deleteNote),
+  NoteController.deleteNote
+)
 
 module.exports = noteRouter

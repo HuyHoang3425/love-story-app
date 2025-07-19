@@ -57,7 +57,6 @@ const cleanIncompleteQuestions = async () => {
   })
 }
 
-
 module.exports = {
   scheduleDailyQuestion,
   cleanIncompleteQuestions
