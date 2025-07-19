@@ -111,9 +111,8 @@ const dailyQuestion = catchAsync(async (req, res) => {
 
   const updatedLog = await log.save()
 
-  const dailyQuestion = await Mission.findOne({ key: 'answer_question_together' })
-  if (!dailyQuestion) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
-  completeDailyMission(user.id, user.coupleId, dailyQuestion)
+  const key = 'answer_question_together'
+  await completeDailyMission(user.id, user.coupleId, dailyQuestion, key)
 
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog }))
 })

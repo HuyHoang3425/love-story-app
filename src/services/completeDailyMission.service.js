@@ -2,7 +2,10 @@ const { StatusCodes } = require('http-status-codes')
 const ApiError = require('../utils/ApiError')
 const { CoupleMissionLog, Couple, UserMissionLog } = require('../models')
 
-const completeDailyMission = async (userId, coupleId, mission) => {
+const completeDailyMission = async (userId, coupleId, mission, key) => {
+  const dailyLogin = await Mission.findOne({ key: key })
+  if (!dailyLogin) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
+
   const couple = await Couple.findById(coupleId)
   const isUserA = String(userId) === String(couple.userIdA)
   const isUserB = String(userId) === String(couple.userIdB)

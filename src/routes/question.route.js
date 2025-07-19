@@ -2,10 +2,10 @@ const express = require('express')
 const questionRouter = express.Router()
 
 const { QuestionController } = require('../controllers/index')
-const { auth, authCouple, validate, authAdmin, loginMission } = require('../middlewares')
+const { auth, authCouple, validate, authAdmin } = require('../middlewares')
 const { QuestionValidation } = require('../validations')
 
-questionRouter.get('/', auth, authCouple, loginMission, QuestionController.getQuestion)
+questionRouter.get('/', auth, authCouple, QuestionController.getQuestion)
 
 questionRouter.post(
   '/',
@@ -35,13 +35,12 @@ questionRouter.post(
   '/daily',
   auth,
   authCouple,
-  loginMission,
   validate(QuestionValidation.dailyQuestion),
   QuestionController.dailyQuestion
 )
 
-questionRouter.get('/daily', auth, authCouple, loginMission, QuestionController.getDailyQuestion)
+questionRouter.get('/daily', auth, authCouple, QuestionController.getDailyQuestion)
 
-questionRouter.get('/daily/feedback', auth, authCouple, loginMission, QuestionController.getDailyQuestionFeedback)
+questionRouter.get('/daily/feedback', auth, authCouple, QuestionController.getDailyQuestionFeedback)
 
 module.exports = questionRouter

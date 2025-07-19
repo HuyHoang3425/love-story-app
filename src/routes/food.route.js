@@ -5,9 +5,9 @@ const multer = require('multer')
 const upload = multer()
 const { FoodController } = require('../controllers')
 const { FoodValidation } = require('../validations')
-const { auth, authCouple, validate, authAdmin, uploadCloudinary, loginMission } = require('../middlewares')
+const { auth, authCouple, validate, authAdmin, uploadCloudinary } = require('../middlewares')
 
-footRouter.get('/', auth, authCouple, loginMission, FoodController.getFood)
+footRouter.get('/', auth, authCouple, FoodController.getFood)
 
 footRouter.post(
   '/',

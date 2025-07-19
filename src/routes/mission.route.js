@@ -2,10 +2,10 @@ const express = require('express')
 const missionRouter = express.Router()
 
 const { MissionController } = require('../controllers')
-const { validate, auth, authAdmin, authCouple, loginMission } = require('../middlewares')
+const { validate, auth, authAdmin, authCouple } = require('../middlewares')
 const { MissionValidation } = require('../validations')
 
-missionRouter.get('/', auth, authCouple, loginMission, MissionController.getMissions)
+missionRouter.get('/', auth, authCouple, MissionController.getMissions)
 
 missionRouter.post('/', auth, authAdmin, validate(MissionValidation.createMission), MissionController.createMission)
 

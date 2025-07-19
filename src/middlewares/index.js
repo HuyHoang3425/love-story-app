@@ -5,6 +5,5 @@ module.exports = {
   authSocket: require('./authSocket.middleware'),
   authCouple: require('./authCouple.middleware'),
   authAdmin: require('./authAdmin.middleware'),
-  uploadCloudinary: require('./uploadCloud.middleware'),
-  loginMission: require('./loginMission')
+  uploadCloudinary: require('./uploadCloud.middleware')
 }

@@ -65,9 +65,8 @@ const feedPet = catchAsync(async (req, res) => {
   pet.lastFedAt = new Date()
   await pet.save()
 
-  const dailyFeedPet = await Mission.findOne({ key: 'feed_pet' })
-  if (!dailyFeedPet) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
-  completeDailyMission(user.id, user.coupleId, dailyFeedPet)
+  const key = 'feed_pet'
+  await completeDailyMission(user.id, user.coupleId, dailyFeedPet, key)
 
   await FeedingLog.create({
     coupleId: user.coupleId,
@@ -84,7 +83,7 @@ const feedPet = catchAsync(async (req, res) => {
     hunger: pet.hunger,
     happiness: pet.happiness
   }
-  feedPetHandel.feedPet(io, receiverId, data)
+  feedPetHandel.feedPet(io, receiverId, user.id, data)
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Cho Pet ăn thành công.', { pet }))
 })
