@@ -1,16 +1,26 @@
 const { StatusCodes } = require('http-status-codes')
 
 const { catchAsync, response, ApiError } = require('../utils')
-const { Mission } = require('../models')
+const { CoupleMissionLog, Mission } = require('../models')
 
 const getMissions = catchAsync(async (req, res) => {
-  const missions = await Mission.find({ isActive: true })
+  const missions = await CoupleMissionLog.find({}).populate({
+    path: 'missionId',
+    match: { isActive: true },
+    select: 'isActive'
+  })
 
-  if (missions.length === 0) {
+  const filteredMissions = missions.filter((m) => m.missionId)
+
+  if (filteredMissions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')
   }
 
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ thành công.', { missions }))
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ thành công.', {
+      missions: filteredMissions
+    })
+  )
 })
 
 const createMission = catchAsync(async (req, res) => {

@@ -1,9 +1,10 @@
 const { StatusCodes } = require('http-status-codes')
 
 const { getIO } = require('../socket')
+const { completeDailyMission } = require('../services')
 const feedPetHandel = require('../socket/handlers/feedPet.handle')
 const { catchAsync, response, ApiError } = require('../utils')
-const { Pet, User, Couple, Food, FeedingLog } = require('../models')
+const { Pet, User, Couple, Food, FeedingLog, Mission } = require('../models')
 const { Socket } = require('socket.io')
 
 const getPet = catchAsync(async (req, res) => {
@@ -63,6 +64,10 @@ const feedPet = catchAsync(async (req, res) => {
   pet.happiness = Math.min(pet.happiness + food.happinessValue, 100)
   pet.lastFedAt = new Date()
   await pet.save()
+
+  const dailyFeedPet = await Mission.findOne({ key: 'feed_pet' })
+  if (!dailyFeedPet) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
+  completeDailyMission(user.id, user.coupleId, dailyFeedPet)
 
   await FeedingLog.create({
     coupleId: user.coupleId,
