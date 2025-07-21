@@ -1,7 +1,8 @@
 const { StatusCodes } = require('http-status-codes')
 
+const { completeDailyMission } = require('../services')
 const { catchAsync, response, ApiError } = require('../utils')
-const { Question, DailyQuestion } = require('../models')
+const { Question, DailyQuestion, Mission } = require('../models')
 
 const getQuestion = catchAsync(async (req, res) => {
   const questions = await Question.find()
@@ -84,7 +85,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
   if (!log) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy câu hỏi hôm nay.')
   }
-
+  console.log(log)
   const checkIdA = user.id.toString() === log.coupleId.userIdA.toString()
   const checkIdB = user.id.toString() === log.coupleId.userIdB.toString()
 
@@ -109,6 +110,9 @@ const dailyQuestion = catchAsync(async (req, res) => {
   }
 
   const updatedLog = await log.save()
+
+  const key = 'answer_question_together'
+  await completeDailyMission(user.id, user.coupleId, key)
 
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog }))
 })

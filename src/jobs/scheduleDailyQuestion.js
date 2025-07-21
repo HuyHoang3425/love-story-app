@@ -44,13 +44,15 @@ const scheduleDailyQuestion = () => {
 }
 
 const cleanIncompleteQuestions = async () => {
-  const today = new Date().toISOString().slice(0, 10)
-  const startOfDay = new Date(today)
-  const endOfDay = new Date(today)
-  endOfDay.setHours(23, 59, 59, 999)
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  yesterday.setHours(0, 0, 0, 0)
+
+  const endOfYesterday = new Date(yesterday)
+  endOfYesterday.setHours(23, 59, 59, 999)
 
   await DailyQuestion.deleteMany({
-    date: { $gte: startOfDay, $lte: endOfDay },
+    date: { $gte: yesterday, $lte: endOfYesterday },
     $or: [{ answerUserA: null }, { answerUserB: null }, { isCompleted: false }]
   })
 }

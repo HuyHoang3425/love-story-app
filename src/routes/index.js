@@ -7,6 +7,7 @@ const petRouter = require('./pet.route')
 const foodRouter = require('./food.route')
 const noteRouter = require('./note.route')
 const questionRouter = require('./question.route')
+const missionRouter = require('./mission.route')
 
 const router = express.Router()
 
@@ -16,9 +17,11 @@ router.use('/auth', authRouter)
 
 router.use('/couple', coupleRouter)
 
-router.use('/pets', petRouter)
+router.use('/pet', petRouter)
 
-router.use('/foods', foodRouter)
+router.use('/food', foodRouter)
+
+router.use('/mission', missionRouter)
 
 router.use('/notes', noteRouter)
 router.use('/food', foodRouter)

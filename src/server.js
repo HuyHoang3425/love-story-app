@@ -11,6 +11,7 @@ const { StatusCodes } = require('http-status-codes')
 const router = require('./routes')
 const socket = require('./socket')
 const { response } = require('./utils')
+const { scheduleDailyQuestion, DailyMission } = require('./jobs')
 const { scheduleDailyQuestion, decreasePetHunger } = require('./jobs')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
@@ -76,8 +77,10 @@ cron.schedule('*/10 * * * *', async () => {
 })
 
 cron.schedule(
-  '0 0 * * *', // chạy lúc 00:00 mỗi ngày
-  scheduleDailyQuestion.cleanIncompleteQuestions,
+  '0 0 * * *',
+  async () => {
+    await Promise.all([scheduleDailyQuestion.cleanIncompleteQuestions(), DailyMission.deleteYesterdayMissions()])
+  },
   {
     timezone: 'Asia/Ho_Chi_Minh'
   }

@@ -5,5 +5,4 @@ module.exports = {
   generate: require('./generate'),
   jwt: require('./jwt'),
   usersOnline: require('./usersOnline')
-  // scheduleDailyQuestion: require('../jobs/scheduleDailyQuestion')
 }
