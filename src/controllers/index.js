@@ -7,5 +7,5 @@ module.exports = {
   NoteController: require('./note.controller'),
   FoodController: require('./food.controller'),
   QuestionController: require('./question.controller'),
-  MissionController: require('./mission.controller.js')
+  MissionController: require('./mission.controller')
 }

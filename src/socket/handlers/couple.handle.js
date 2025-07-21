@@ -1,7 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
-const { User, Couple, DailyQuestion, Question } = require('../../models')
+const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
-const { scheduleDailyQuestion } = require('../../jobs')
+const { scheduleDailyQuestion, DailyMission } = require('../../jobs')
 
 const couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
@@ -14,6 +14,7 @@ const couple = catchAsync(async (socket, io) => {
       coupleCode: data.coupleCode
     })
     if (!userB) {
+      console.log('Mã coupleCode không hợp lệ!')
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
         message: 'Mã coupleCode không hợp lệ!'
@@ -210,21 +211,44 @@ const couple = catchAsync(async (socket, io) => {
     })
     await newCouple.save()
     //tạo câu hỏi đầu tiên
-    const today = new Date().toISOString().slice(0, 10)
+    //tạo các nhiệm vụ đầu tiên
+    //toạ câu hỏi cho ngày mai
+    //tạo nhiệm vụ cho ngày mai
+    const todayQuestion = new Date().toISOString().slice(0, 10)
     const usedQuestionIds = await DailyQuestion.find({ coupleId: newCouple._id }).distinct('questionId')
     const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
 
-    if (unusedQuestions.length > 0) {
-      const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
-      await DailyQuestion.create({
+    const todayMission = new Date()
+    todayMission.setHours(0, 0, 0, 0)
+    const bulk = []
+    const missions = await Mission.find({ isActive: true })
+    missions.forEach((mission) => {
+      bulk.push({
         coupleId: newCouple._id,
-        questionId: randomQuestion._id,
-        date: new Date(today)
+        missionId: mission._id,
+        dateAssigned: new Date(todayMission)
       })
-    }
+    })
 
-    //toạ câu hỏi cho ngày mai
-    scheduleDailyQuestion.scheduleDailyQuestion()
+    await Promise.all([
+      (async () => {
+        if (unusedQuestions.length > 0) {
+          const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
+          await DailyQuestion.create({
+            coupleId: newCouple._id,
+            questionId: randomQuestion._id,
+            date: new Date(todayQuestion)
+          })
+        }
+      })(),
+      (async () => {
+        if (bulk.length > 0) {
+          await CoupleMissionLog.insertMany(bulk, { ordered: false })
+        }
+      })(),
+      (async () => await scheduleDailyQuestion.scheduleDailyQuestion())(),
+      (async () => await DailyMission.generateDailyMissions())()
+    ])
 
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
     await User.updateOne(

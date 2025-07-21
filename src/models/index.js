@@ -7,5 +7,8 @@ module.exports = {
   Note: require('./note.model'),
   FeedingLog: require('./feeding-log.model'),
   Question: require('./question.model'),
-  DailyQuestion: require('./daily-question.model')
+  DailyQuestion: require('./daily-question.model'),
+  Mission: require('./mission.model'),
+  UserMissionLog: require('./user-mission-log.model'),
+  CoupleMissionLog: require('./couple-mission-log.model')
 }
