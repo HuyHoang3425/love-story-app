@@ -12,6 +12,7 @@ const router = require('./routes')
 const socket = require('./socket')
 const { response } = require('./utils')
 const { scheduleDailyQuestion, DailyMission } = require('./jobs')
+const { scheduleDailyQuestion, decreasePetHunger } = require('./jobs')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 
@@ -84,6 +85,10 @@ cron.schedule(
     timezone: 'Asia/Ho_Chi_Minh'
   }
 )
+//Giảm đói Pet
+cron.schedule('*/15 * * * *', async () => {
+  await decreasePetHunger()
+})
 
 app.all('{/*path}', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy tài nguyên.'))
