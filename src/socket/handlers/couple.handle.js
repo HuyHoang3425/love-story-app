@@ -226,7 +226,7 @@ const couple = catchAsync(async (socket, io) => {
       bulk.push({
         coupleId: newCouple._id,
         missionId: mission._id,
-        dateAssigned: new Date(todayMission)
+        date: new Date(todayMission)
       })
     })
 
