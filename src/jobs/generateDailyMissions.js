@@ -10,8 +10,7 @@ const generateDailyMissions = async () => {
   cron.schedule(
     '0 23 * * *',
     async () => {
-      const missions = await Mission.find({ isActive: true })
-      const couples = await Couple.find({ isActive: true })
+      const [missions, couples] = await Promise.all([Mission.find({ isActive: true }), Couple.find({})])
 
       const bulk = []
 

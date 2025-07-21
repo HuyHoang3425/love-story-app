@@ -66,7 +66,7 @@ const feedPet = catchAsync(async (req, res) => {
   await pet.save()
 
   const key = 'feed_pet'
-  await completeDailyMission(user.id, user.coupleId, dailyFeedPet, key)
+  await completeDailyMission(user.id, user.coupleId, key)
 
   await FeedingLog.create({
     coupleId: user.coupleId,

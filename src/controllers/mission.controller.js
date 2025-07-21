@@ -7,18 +7,16 @@ const getMissions = catchAsync(async (req, res) => {
   const missions = await CoupleMissionLog.find({}).populate({
     path: 'missionId',
     match: { isActive: true },
-    select: 'isActive'
+    select: 'isActive description'
   })
 
-  const filteredMissions = missions.filter((m) => m.missionId)
-
-  if (filteredMissions.length === 0) {
+  if (missions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')
   }
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ thành công.', {
-      missions: filteredMissions
+      missions: missions
     })
   )
 })

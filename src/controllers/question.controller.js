@@ -112,7 +112,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
   const updatedLog = await log.save()
 
   const key = 'answer_question_together'
-  await completeDailyMission(user.id, user.coupleId, dailyQuestion, key)
+  await completeDailyMission(user.id, user.coupleId, key)
 
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi câu trả lời thành công.', { updatedLog }))
 })

@@ -10,7 +10,7 @@ const authCouple = catchAsync(async (req, res, next) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn chưa tham gia couple. Hãy kết nối với người ấy trước!')
   }
   const key = 'daily_login'
-  await completeDailyMission(user.id, user.coupleId, dailyLogin, key)
+  await completeDailyMission(user.id, user.coupleId, key)
   next()
 })
 
