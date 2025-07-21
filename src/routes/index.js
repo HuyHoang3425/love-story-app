@@ -8,7 +8,6 @@ const foodRouter = require('./food.route')
 const noteRouter = require('./note.route')
 const missionRouter = require('./mission.route')
 const questionRouter = require('./question.route')
-const missionRouter = require('./mission.route')
 
 const router = express.Router()
 
