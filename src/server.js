@@ -74,10 +74,12 @@ cron.schedule('*/10 * * * *', async () => {
     logger.error(`[CRON] Ping failed: ${error}`)
   }
 })
-
+//reset lại Question và Mission
 cron.schedule(
-  '0 0 * * *', // chạy lúc 00:00 mỗi ngày
-  scheduleDailyQuestion.cleanIncompleteQuestions,
+  '0 0 * * *',
+  async () => {
+    await Promise.all([scheduleDailyQuestion.cleanIncompleteQuestions(), DailyMission.deleteYesterdayMissions()])
+  },
   {
     timezone: 'Asia/Ho_Chi_Minh'
   }
