@@ -2,7 +2,7 @@ const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
 const { User, Couple, Pet } = require('../models/index')
-const socketCouple = require('../socket/handlers/couple.handle')
+const socketCouple  = require('../socket/handlers/couple.handle')
 const socket = require('../socket')
 
 const connect = catchAsync(async (req, res) => {
@@ -53,6 +53,7 @@ const getInfoCouple = catchAsync(async (req, res) => {
 
 const editLoveStarted = catchAsync(async (req, res) => {
   const id = req.user.id
+
   const { loveStartedAt } = req.body
 
   const user = await User.findById(id).select('coupleId')
@@ -62,6 +63,10 @@ const editLoveStarted = catchAsync(async (req, res) => {
     .populate('userIdB', 'username avatar')
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
+  }
+
+  if (couple.loveStartedAtEdited) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'chỉ được sửa ngày yêu 1 lần!')
   }
 
   if (couple.loveStartedAtEdited) {
