@@ -20,10 +20,6 @@ const getNotes = catchAsync(async (req, res) => {
 
   const notes = await Note.find(filter)
 
-  if (!notes.length) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy ghi chú nào.')
-  }
-
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, message, { notes }))
 })
 
