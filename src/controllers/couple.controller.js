@@ -42,8 +42,8 @@ const getInfoCouple = catchAsync(async (req, res) => {
   }
 
   const couple = await Couple.findById(user.coupleId)
-    .populate('userIdA', 'username avatar')
-    .populate('userIdB', 'username avatar')
+    .populate('userIdA', 'username avatar nickname gender dateOfBirth lastName firstName')
+    .populate('userIdB', 'username avatar nickname gender dateOfBirth lastName firstName')
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
@@ -53,6 +53,7 @@ const getInfoCouple = catchAsync(async (req, res) => {
 
 const editLoveStarted = catchAsync(async (req, res) => {
   const id = req.user.id
+
   const { loveStartedAt } = req.body
 
   const user = await User.findById(id).select('coupleId')
@@ -68,10 +69,14 @@ const editLoveStarted = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'chỉ được sửa ngày yêu 1 lần!')
   }
 
+  if (couple.loveStartedAtEdited) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'chỉ được sửa ngày yêu 1 lần!')
+  }
+
   couple.loveStartedAt = new Date(loveStartedAt)
   couple.loveStartedAtEdited = true
   await couple.save()
-  
+
   //socketIO
   const io = socket.getIO()
   const currentUserId = user.id.toString()
@@ -80,10 +85,9 @@ const editLoveStarted = catchAsync(async (req, res) => {
 
   // Xác định người còn lại
   const myLoveId = currentUserId === coupleUserA ? coupleUserB : coupleUserA
-  
+
   // Gửi socket thông báo
   socketCouple.loveStarted(io, myLoveId)
-
 
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Cập nhật ngày yêu của Couple thành công.', { couple }))
 })
