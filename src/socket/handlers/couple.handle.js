@@ -3,7 +3,7 @@ const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog } = req
 const { usersOnline, catchAsync } = require('../../utils')
 const { scheduleDailyQuestion, DailyMission } = require('../../jobs')
 
-const couple = catchAsync(async (socket, io) => {
+module.exports.couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
   const myUserName = socket.user.username
   //A gửi lời mời kết bạn cho B
@@ -293,6 +293,5 @@ const loveStarted = (io,myLoveId) =>{
     })
 }
 module.exports = {
-  couple,
   loveStarted,
 }
