@@ -2,7 +2,7 @@ const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
 const { User, Couple, Pet } = require('../models/index')
-const socketCouple  = require('../socket/handlers/couple.handle')
+const socketCouple = require('../socket/handlers/couple.handle')
 const socket = require('../socket')
 
 const connect = catchAsync(async (req, res) => {
@@ -42,8 +42,8 @@ const getInfoCouple = catchAsync(async (req, res) => {
   }
 
   const couple = await Couple.findById(user.coupleId)
-    .populate('userIdA', 'username avatar')
-    .populate('userIdB', 'username avatar')
+    .populate('userIdA', 'username avatar nickname gender dateOfBirth lastName firstName')
+    .populate('userIdB', 'username avatar nickname gender dateOfBirth lastName firstName')
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
@@ -71,7 +71,7 @@ const editLoveStarted = catchAsync(async (req, res) => {
   couple.loveStartedAt = new Date(loveStartedAt)
   couple.loveStartedAtEdited = true
   await couple.save()
-  
+
   //socketIO
   const io = socket.getIO()
   const currentUserId = user.id.toString()
@@ -80,10 +80,9 @@ const editLoveStarted = catchAsync(async (req, res) => {
 
   // Xác định người còn lại
   const myLoveId = currentUserId === coupleUserA ? coupleUserB : coupleUserA
-  
+
   // Gửi socket thông báo
   socketCouple.loveStarted(io, myLoveId)
-
 
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Cập nhật ngày yêu của Couple thành công.', { couple }))
 })
