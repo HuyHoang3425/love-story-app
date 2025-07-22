@@ -285,6 +285,14 @@ const couple = catchAsync(async (socket, io) => {
     }
   })
 })
+
+const loveStarted = (io,myLoveId) =>{
+   const myLove = usersOnline.getSocketId(myLoveId)
+    io.to(myLove).emit('LOVE_DATE_UPDATED_BY_PARTNER', {
+      loveStartedAtEdited:true
+    })
+}
 module.exports = {
-  couple
+  couple,
+  loveStarted,
 }

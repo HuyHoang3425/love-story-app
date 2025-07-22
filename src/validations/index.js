@@ -5,5 +5,6 @@ module.exports = {
   FoodValidation: require('./food.validation'),
   NoteValidation: require('./note.validation'),
   QuestionValidation: require('./question.validation'),
-  MissionValidation: require('./mission.validation')
+  MissionValidation: require('./mission.validation'),
+  CoupleValidation: require('./couple.validation')
 }

@@ -18,6 +18,10 @@ const coupleSchema = new mongoose.Schema(
     loveStartedAt: {
       type: Date,
       default: Date.now
+    },
+    loveStartedAtEdited: {
+      type: Boolean,
+      default: false
     }
   },
   {

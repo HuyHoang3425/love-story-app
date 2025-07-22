@@ -2,7 +2,8 @@ const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
 const { User, Couple, Pet } = require('../models/index')
-const { updateOne } = require('../models/user.model')
+const socketCouple  = require('../socket/handlers/couple.handle')
+const socket = require('../socket')
 
 const connect = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id).select('username acceptFriends requestFriends coupleId').populate({
@@ -50,12 +51,11 @@ const getInfoCouple = catchAsync(async (req, res) => {
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Lấy thông tin Couple thành công.', { couple }))
 })
 
-const editInfoCouple = catchAsync(async (req, res) => {
+const editLoveStarted = catchAsync(async (req, res) => {
   const id = req.user.id
+  const { loveStartedAt } = req.body
+
   const user = await User.findById(id).select('coupleId')
-  if (!user.coupleId) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
-  }
 
   const couple = await Couple.findById(user.coupleId)
     .populate('userIdA', 'username avatar')
@@ -64,9 +64,28 @@ const editInfoCouple = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
 
-  Object.assign(couple, req.body)
+  if (couple.loveStartedAtEdited) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'chỉ được sửa ngày yêu 1 lần!')
+  }
+
+  couple.loveStartedAt = new Date(loveStartedAt)
+  couple.loveStartedAtEdited = true
   await couple.save()
-  res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Cập nhật thông tin Couple thành công.', { couple }))
+  
+  //socketIO
+  const io = socket.getIO()
+  const currentUserId = user.id.toString()
+  const coupleUserA = couple.userIdA.toString()
+  const coupleUserB = couple.userIdB.toString()
+
+  // Xác định người còn lại
+  const myLoveId = currentUserId === coupleUserA ? coupleUserB : coupleUserA
+  
+  // Gửi socket thông báo
+  socketCouple.loveStarted(io, myLoveId)
+
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Cập nhật ngày yêu của Couple thành công.', { couple }))
 })
 
 const disconnect = catchAsync(async (req, res) => {
@@ -98,5 +117,5 @@ module.exports = {
   connect,
   disconnect,
   getInfoCouple,
-  editInfoCouple
+  editLoveStarted
 }
