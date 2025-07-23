@@ -79,10 +79,37 @@ const changeActiveMision = catchAsync(async (req, res) => {
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, message, { mission }))
 })
 
+const getMissionsTomorrow = catchAsync(async (req, res) => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10) // 'YYYY-MM-DD'
+
+  const missions = await CoupleMissionLog.find({
+    date: tomorrowStr
+  }).populate({
+    path: 'missionId',
+    match: { isActive: true },
+    select: 'isActive description'
+  })
+
+  if (!missions || missions.length === 0) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không có nhiệm vụ nào cho ngày mai.')
+  }
+
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ ngày mai thành công.', {
+      missions
+    })
+  )
+})
+
+
+
 module.exports = {
   getMissions,
   createMission,
   editMission,
   deleteMission,
-  changeActiveMision
+  changeActiveMision,
+  getMissionsTomorrow,
 }

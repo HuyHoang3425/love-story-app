@@ -80,12 +80,12 @@ const editLoveStarted = catchAsync(async (req, res) => {
   //socketIO
   const io = socket.getIO()
   const currentUserId = user.id.toString()
-  const coupleUserA = couple.userIdA.toString()
-  const coupleUserB = couple.userIdB.toString()
+  const coupleUserA = couple.userIdA._id.toString()
+  const coupleUserB = couple.userIdB._id.toString()
 
   // Xác định người còn lại
   const myLoveId = currentUserId === coupleUserA ? coupleUserB : coupleUserA
-
+  
   // Gửi socket thông báo
   socketCouple.loveStarted(io, myLoveId)
 
