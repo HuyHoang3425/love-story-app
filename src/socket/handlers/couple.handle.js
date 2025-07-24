@@ -1,7 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
 const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
-const { scheduleDailyQuestion, DailyMission } = require('../../jobs')
+const { dailyQuestion, dailyMission } = require('../../jobs')
 
 module.exports.couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
@@ -214,40 +214,35 @@ module.exports.couple = catchAsync(async (socket, io) => {
     //tạo các nhiệm vụ đầu tiên
     //toạ câu hỏi cho ngày mai
     //tạo nhiệm vụ cho ngày mai
-    const todayQuestion = new Date().toISOString().slice(0, 10)
-    const usedQuestionIds = await DailyQuestion.find({ coupleId: newCouple._id }).distinct('questionId')
-    const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
-
-    const todayMission = new Date()
-    todayMission.setHours(0, 0, 0, 0)
-    const bulk = []
-    const missions = await Mission.find({ isActive: true })
-    missions.forEach((mission) => {
-      bulk.push({
-        coupleId: newCouple._id,
-        missionId: mission._id,
-        date: new Date(todayMission)
-      })
-    })
-
     await Promise.all([
       (async () => {
+        const usedQuestionIds = await DailyQuestion.find({ coupleId: newCouple._id }).distinct('questionId')
+        const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
         if (unusedQuestions.length > 0) {
           const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
           await DailyQuestion.create({
             coupleId: newCouple._id,
             questionId: randomQuestion._id,
-            date: new Date(todayQuestion)
+            date: new Date()
           })
         }
       })(),
       (async () => {
+        const bulk = []
+        const missions = await Mission.find({ isActive: true })
+        missions.forEach((mission) => {
+          bulk.push({
+            coupleId: newCouple._id,
+            missionId: mission._id,
+            date: new Date()
+          })
+        })
         if (bulk.length > 0) {
           await CoupleMissionLog.insertMany(bulk, { ordered: false })
         }
       })(),
-      (async () => await scheduleDailyQuestion.scheduleDailyQuestion())(),
-      (async () => await DailyMission.generateDailyMissions())()
+      (async () => await dailyQuestion.generateDailyQuestionTomorrow())(),
+      (async () => await dailyMission.generateDailyMissionsTomorrow())()
     ])
 
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })

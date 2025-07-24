@@ -82,17 +82,15 @@ const changeActiveMision = catchAsync(async (req, res) => {
 const getMissionsTomorrow = catchAsync(async (req, res) => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10) // 'YYYY-MM-DD'
+  tomorrow.setHours(0, 0, 0, 0)
+
 
   const missions = await CoupleMissionLog.find({
-    date: tomorrowStr
-  }).populate({
-    path: 'missionId',
-    match: { isActive: true },
-    select: 'isActive description'
+    date: new Date(tomorrow),
+    coupleId: req.user.coupleId
   })
 
-  if (!missions || missions.length === 0) {
+  if (!missions) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không có nhiệm vụ nào cho ngày mai.')
   }
 

@@ -85,7 +85,7 @@ const editLoveStarted = catchAsync(async (req, res) => {
 
   // Xác định người còn lại
   const myLoveId = currentUserId === coupleUserA ? coupleUserB : coupleUserA
-  
+
   // Gửi socket thông báo
   socketCouple.loveStarted(io, myLoveId)
 

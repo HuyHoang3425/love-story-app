@@ -1,5 +1,5 @@
 module.exports = {
   decreasePetHunger: require('./decreasePetHunger'),
-  scheduleDailyQuestion: require('./scheduleDailyQuestion'),
-  DailyMission: require('./generateDailyMissions')
+  dailyQuestion: require('./dailyQuestion'),
+  dailyMission: require('./dailyMissions')
 }

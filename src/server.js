@@ -5,15 +5,14 @@ const axios = require('axios')
 const cron = require('node-cron')
 const express = require('express')
 const mongoose = require('mongoose')
-const { Server } = require('socket.io')
 const { StatusCodes } = require('http-status-codes')
 
 const router = require('./routes')
 const socket = require('./socket')
 const { response } = require('./utils')
-const { scheduleDailyQuestion, DailyMission, decreasePetHunger } = require('./jobs')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
+const { dailyMission, dailyQuestion, decreasePetHunger } = require('./jobs')
 
 const app = express()
 
@@ -74,16 +73,23 @@ cron.schedule('*/10 * * * *', async () => {
     logger.error(`[CRON] Ping failed: ${error}`)
   }
 })
-//reset lại Question và Mission
+
+//reset Question và Mission
 cron.schedule(
-  '0 0 * * *',
+  '5 0 * * *',
   async () => {
-    await Promise.all([scheduleDailyQuestion.cleanIncompleteQuestions(), DailyMission.deleteYesterdayMissions()])
+    await Promise.all([
+      dailyMission.generateDailyMissionsTomorrow(),
+      dailyQuestion.generateDailyQuestionTomorrow(),
+      dailyMission.deleteUncompletedMissions(), 
+      dailyQuestion.deleteUncompletedQuestions()
+    ])
   },
   {
     timezone: 'Asia/Ho_Chi_Minh'
   }
 )
+
 //Giảm đói Pet
 cron.schedule('*/15 * * * *', async () => {
   await decreasePetHunger()
