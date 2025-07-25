@@ -1,7 +1,8 @@
 const { StatusCodes } = require('http-status-codes')
 
 const { catchAsync, response, ApiError } = require('../utils')
-const { Note } = require('../models')
+const { Note, Notification, Couple } = require('../models')
+const sendNot = require('../socket/handlers/notification.handle')
 
 const getNotes = catchAsync(async (req, res) => {
   const { day, month, year } = req.query
@@ -32,6 +33,21 @@ const createNote = catchAsync(async (req, res) => {
     content,
     date
   })
+  //thông báo
+  const now = dayjs(newNote.date).format('DD/MM/YYYY')
+  const couple = await Couple.findById(user.coupleId)
+  const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
+
+  const not = await Notification.create({
+    coupleId: user.coupleId,
+    fromUserId: user.id,
+    toUserId: receiverId,
+    type: 'love_note',
+    content: `${user.username} vừa tạo ghi chú cho ngày ${now}.`
+  })
+
+  sendNot(io, not)
+
   res.status(StatusCodes.CREATED).json(
     response(StatusCodes.CREATED, 'Tạo ghi chú thành công.', {
       newNote
@@ -63,6 +79,21 @@ const editNote = catchAsync(async (req, res) => {
       new: true
     }
   )
+  //thông báo
+  const now = dayjs(update.date).format('DD/MM/YYYY')
+  const couple = await Couple.findById(user.coupleId)
+  const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
+
+  const not = await Notification.create({
+    coupleId: user.coupleId,
+    fromUserId: user.id,
+    toUserId: receiverId,
+    type: 'love_note',
+    content: `${user.username} vừa sửa 1 ghi chú cho ngày ${now}.`
+  })
+
+  sendNot(io, not)
+
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Cập nhật ghi chú thành công.', {
       update
@@ -83,7 +114,23 @@ const deleteNote = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Không có quyền xoá ghi chú này.')
   }
 
+  //thông báo
+  const now = dayjs(note.date).format('DD/MM/YYYY')
+  const couple = await Couple.findById(user.coupleId)
+  const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
+
+  const not = await Notification.create({
+    coupleId: user.coupleId,
+    fromUserId: user.id,
+    toUserId: receiverId,
+    type: 'love_note',
+    content: `${user.username} vừa xoá 1 ghi chú cho ngày ${now}.`
+  })
+
+  sendNot(io, not)
+
   await Note.deleteOne({ _id: noteId })
+
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá ghi chú thành công.'))
 })
 

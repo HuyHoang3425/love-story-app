@@ -8,6 +8,7 @@ const foodRouter = require('./food.route')
 const noteRouter = require('./note.route')
 const missionRouter = require('./mission.route')
 const questionRouter = require('./question.route')
+const notificationRouter = require('./notification.route')
 
 const router = express.Router()
 
@@ -28,5 +29,7 @@ router.use('/notes', noteRouter)
 router.use('/mission', missionRouter)
 
 router.use('/question', questionRouter)
+
+router.use('/notification', notificationRouter)
 
 module.exports = router
