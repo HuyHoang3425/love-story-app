@@ -1,3 +1,5 @@
+const { StatusCodes } = require('http-status-codes')
+
 const { usersOnline } = require('../../utils')
 
 const petActive = (socket) => {
