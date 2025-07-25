@@ -3,6 +3,7 @@ const { Server } = require('socket.io')
 const coupleHandle = require('./handlers/couple.handle')
 const { authSocket } = require('../middlewares/')
 const { usersOnline } = require('../utils')
+const petActive = require('./handlers/petActive.handle')
 
 let io = null
 
@@ -19,6 +20,8 @@ module.exports.initSocket = (server) => {
     usersOnline.addUser(socket.user.id, socket.id)
 
     coupleHandle.couple(socket, io)
+
+    petActive(socket)
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)

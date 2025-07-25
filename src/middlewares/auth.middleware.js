@@ -8,17 +8,17 @@ const { env } = require('../config')
 const auth = catchAsync(async (req, res, next) => {
   const token = jwt.extractToken(req)
   if (!token) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'vui lòng đăng nhập!','AUTH_TOKEN_MISSING')
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'vui lòng đăng nhập!', 'AUTH_TOKEN_MISSING')
   }
   const checkExpire = jwt.isTokenExpired(token)
   if (checkExpire) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'token hết hạn!','AUTH_TOKEN_EXPIRE')
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'token hết hạn!', 'AUTH_TOKEN_EXPIRE')
   }
   const secretLogin = env.jwt.secret_login
   const payload = jwt.verifyToken(token, secretLogin)
   const user = await User.findById({ _id: payload.id })
   if (!user) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'người dùng không tồn tại!','AUTH_USER_NOT_FOUND')
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'người dùng không tồn tại!', 'AUTH_USER_NOT_FOUND')
   }
   req.user = user
   next()

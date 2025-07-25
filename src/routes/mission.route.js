@@ -9,7 +9,6 @@ missionRouter.get('/', auth, authCouple, MissionController.getMissions)
 
 missionRouter.get('/tomorrow', auth, authCouple, MissionController.getMissionsTomorrow)
 
-
 missionRouter.post('/', auth, authAdmin, validate(MissionValidation.createMission), MissionController.createMission)
 
 missionRouter.put(

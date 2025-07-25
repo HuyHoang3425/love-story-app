@@ -81,7 +81,7 @@ cron.schedule(
     await Promise.all([
       dailyMission.generateDailyMissionsTomorrow(),
       dailyQuestion.generateDailyQuestionTomorrow(),
-      dailyMission.deleteUncompletedMissions(), 
+      dailyMission.deleteUncompletedMissions(),
       dailyQuestion.deleteUncompletedQuestions()
     ])
   },

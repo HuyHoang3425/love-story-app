@@ -84,7 +84,6 @@ const getMissionsTomorrow = catchAsync(async (req, res) => {
   tomorrow.setDate(tomorrow.getDate() + 1)
   tomorrow.setHours(0, 0, 0, 0)
 
-
   const missions = await CoupleMissionLog.find({
     date: new Date(tomorrow),
     coupleId: req.user.coupleId
@@ -101,13 +100,11 @@ const getMissionsTomorrow = catchAsync(async (req, res) => {
   )
 })
 
-
-
 module.exports = {
   getMissions,
   createMission,
   editMission,
   deleteMission,
   changeActiveMision,
-  getMissionsTomorrow,
+  getMissionsTomorrow
 }
