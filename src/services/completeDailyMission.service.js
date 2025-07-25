@@ -4,8 +4,6 @@ const { CoupleMissionLog, Couple, UserMissionLog, Mission } = require('../models
 
 const completeDailyMission = async (userId, coupleId, key) => {
   const mission = await Mission.findOne({ key: key })
-  console.log(key)
-  console.log(mission)
   if (!mission) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
 
   const couple = await Couple.findById(coupleId)
