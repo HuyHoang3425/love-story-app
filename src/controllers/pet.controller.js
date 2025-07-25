@@ -3,8 +3,9 @@ const { StatusCodes } = require('http-status-codes')
 const { getIO } = require('../socket')
 const { completeDailyMission } = require('../services')
 const feedPetHandel = require('../socket/handlers/feedPet.handle')
+const sendNot = require('../socket/handlers/notification.handle')
 const { catchAsync, response, ApiError } = require('../utils')
-const { Pet, User, Couple, Food, FeedingLog, Mission } = require('../models')
+const { Pet, User, Couple, Food, FeedingLog, Mission, Notification } = require('../models')
 const { Socket } = require('socket.io')
 
 const getPet = catchAsync(async (req, res) => {
@@ -84,6 +85,17 @@ const feedPet = catchAsync(async (req, res) => {
     happiness: pet.happiness
   }
   feedPetHandel.feedPet(io, receiverId, user.id, data)
+
+  //thông báo
+  const not = await Notification.create({
+    coupleId: user.coupleId,
+    fromUserId: user.id,
+    toUserId: receiverId,
+    type: 'feed_pet',
+    content: `${user.username} vừa cho Pet ăn.`
+  })
+
+  sendNot(io, not)
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Cho Pet ăn thành công.', { pet }))
 })

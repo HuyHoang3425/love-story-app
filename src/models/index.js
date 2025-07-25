@@ -10,5 +10,6 @@ module.exports = {
   DailyQuestion: require('./daily-question.model'),
   Mission: require('./mission.model'),
   UserMissionLog: require('./user-mission-log.model'),
-  CoupleMissionLog: require('./couple-mission-log.model')
+  CoupleMissionLog: require('./couple-mission-log.model'),
+  Notification: require('./notification.model')
 }
