@@ -13,6 +13,7 @@ const { response } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 const { dailyMission, dailyQuestion, decreasePetHunger } = require('./jobs')
+const dayjs = require('dayjs')
 
 const app = express()
 
@@ -47,6 +48,17 @@ if (env.server.nodeEnv === 'development') {
 app.use('/api/v1', router)
 
 app.get('/', (req, res) => {
+  const now = dayjs()
+
+  // Thời gian đầu ngày mai (00:00:00.000)
+  const startOfTomorrow = dayjs().add(1, 'day').startOf('day')
+
+  // Thời gian cuối ngày mai (23:59:59.999)
+  const endOfTomorrow = dayjs().add(1, 'day').endOf('day')
+
+  console.log('Thời gian hiện tại:', now.format()) // ISO định dạng chuẩn
+  console.log('Đầu ngày mai:', startOfTomorrow.format())
+  console.log('Cuối ngày mai:', endOfTomorrow.format())
   res.send('Backend Server for Love Story App is running!')
 })
 
