@@ -8,6 +8,7 @@ const HAPPY = [
     happiness: 2500
   }
 ]
+
 module.exports = {
   HAPPY
 }
