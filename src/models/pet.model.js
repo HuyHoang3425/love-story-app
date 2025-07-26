@@ -14,15 +14,14 @@ const petSchema = new mongoose.Schema(
     },
     hunger: {
       type: Number,
-      default: 0,
+      default: 35,
       min: 0,
       max: 100
     },
     happiness: {
       type: Number,
-      default: 100,
-      min: 0,
-      max: 100
+      default: 0,
+      min: 0
     },
     lastFedAt: {
       type: Date,

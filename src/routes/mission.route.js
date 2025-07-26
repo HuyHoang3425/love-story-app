@@ -5,7 +5,7 @@ const { MissionController } = require('../controllers')
 const { validate, auth, authAdmin, authCouple } = require('../middlewares')
 const { MissionValidation } = require('../validations')
 
-missionRouter.get('/', auth, authCouple, MissionController.getMissions)
+missionRouter.get('/', auth, authCouple, MissionController.getDailyMissions)
 
 missionRouter.get('/tomorrow', auth, authCouple, MissionController.getMissionsTomorrow)
 

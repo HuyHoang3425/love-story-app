@@ -4,9 +4,8 @@ const { getIO } = require('../socket')
 const { completeDailyMission } = require('../services')
 const feedPetHandel = require('../socket/handlers/feedPet.handle')
 const sendNot = require('../socket/handlers/notification.handle')
-const { catchAsync, response, ApiError } = require('../utils')
+const { catchAsync, response, ApiError, levelPet } = require('../utils')
 const { Pet, User, Couple, Food, FeedingLog, Mission, Notification } = require('../models')
-const { Socket } = require('socket.io')
 
 const getPet = catchAsync(async (req, res) => {
   const pet = await Pet.findOne({ coupleId: req.user.coupleId })
@@ -58,11 +57,14 @@ const feedPet = catchAsync(async (req, res) => {
   if (couple.coin < food.price) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn không có đủ tiền.')
   }
+
   couple.coin -= food.price
   await couple.save()
 
   pet.hunger = Math.min(pet.hunger + food.nutritionValue, 100)
-  pet.happiness = Math.min(pet.happiness + food.happinessValue, 100)
+  const levelHappinessMax = levelPet.getHappinessofLevel(pet.happiness)
+  console.log(levelHappinessMax)
+  pet.happiness = Math.min(pet.happiness + food.happinessValue, levelHappinessMax)
   pet.lastFedAt = new Date()
   await pet.save()
 

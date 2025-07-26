@@ -2,7 +2,15 @@ const { StatusCodes } = require('http-status-codes')
 
 const { completeDailyMission } = require('../services')
 const { catchAsync, response, ApiError } = require('../utils')
-const { Question, DailyQuestion, Mission } = require('../models')
+const { Question, DailyQuestion, Mission, Couple } = require('../models')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const { time } = require('../config/env.config')
+const { couple } = require('../socket/handlers/couple.handle')
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const getQuestion = catchAsync(async (req, res) => {
   const questions = await Question.find()
@@ -38,30 +46,32 @@ const deleteQuestion = catchAsync(async (req, res) => {
 
 const getDailyQuestion = catchAsync(async (req, res) => {
   const user = req.user
-  const today = new Date().toISOString().slice(0, 10)
+  const startOfToday = dayjs().tz(time.vn_tz).startOf('day').toDate()
+  const endOfToday = dayjs().tz(time.vn_tz).endOf('day').toDate()
 
   let dailyQuestion = await DailyQuestion.findOne({
     coupleId: user.coupleId,
-    date: today
+    date: { $gte: startOfToday, $lte: endOfToday }
   }).populate('questionId')
 
-  if (!dailyQuestion) {
-    const usedQuestionIds = await DailyQuestion.find({ coupleId: user.coupleId }).distinct('questionId')
-    const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
+  // if (!dailyQuestion) {
+  //   const usedQuestionIds = await DailyQuestion.find({ coupleId: user.coupleId }).distinct('questionId')
+  //   const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
 
-    if (unusedQuestions.length === 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Hết câu hỏi!')
-    }
+  //   if (unusedQuestions.length === 0) {
+  //     throw new ApiError(StatusCodes.BAD_REQUEST, 'Hết câu hỏi!')
+  //   }
 
-    const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
-    dailyQuestion = await DailyQuestion.create({
-      coupleId: user.coupleId,
-      questionId: randomQuestion._id,
-      date: new Date(today)
-    })
+  //   const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
 
-    dailyQuestion.questionId = randomQuestion
-  }
+  //   dailyQuestion = await DailyQuestion.create({
+  //     coupleId: user.coupleId,
+  //     questionId: randomQuestion._id,
+  //     date: dayjs().tz(time.vn_tz).toDate()
+  //   })
+
+  //   dailyQuestion.questionId = randomQuestion
+  // }
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy câu hỏi hôm nay thành công.', {
@@ -73,44 +83,59 @@ const getDailyQuestion = catchAsync(async (req, res) => {
 const dailyQuestion = catchAsync(async (req, res) => {
   const { answer } = req.body
   const user = req.user
-  const today = new Date().toISOString().slice(0, 10)
-  let log = await DailyQuestion.findOne({
-    coupleId: user.coupleId,
-    date: today
-  }).populate({
-    path: 'coupleId',
-    select: 'userIdA userIdB'
-  })
+
+  const startOfToday = dayjs().tz(time.vn_tz).startOf('day').toDate()
+  const endOfToday = dayjs().tz(time.vn_tz).endOf('day').toDate()
+
+  const [log, couple] = await Promise.all([
+    DailyQuestion.findOne({
+      coupleId: user.coupleId,
+      date: { $gte: startOfToday, $lte: endOfToday }
+    })
+      .populate({
+        path: 'coupleId',
+        select: 'userIdA userIdB'
+      })
+      .select('-createdAt -updatedAt -__v'),
+
+    Couple.findById(user.coupleId)
+  ])
 
   if (!log) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy câu hỏi hôm nay.')
   }
-  console.log(log)
+
   const checkIdA = user.id.toString() === log.coupleId.userIdA.toString()
   const checkIdB = user.id.toString() === log.coupleId.userIdB.toString()
 
-  if (log.answerUserA && checkIdA) {
-    throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã trả lời rồi.')
-  }
-
-  if (log.answerUserB && checkIdB) {
+  if ((log.answerUserA && checkIdA) || (log.answerUserB && checkIdB)) {
     throw new ApiError(StatusCodes.CONFLICT, 'Bạn đã trả lời rồi.')
   }
 
   if (checkIdA) {
     log.answerUserA = answer.trim()
-    log.userAAnsweredAt = new Date()
+    log.userAAnsweredAt = dayjs().tz(time.vn_tz).toDate()
   } else if (checkIdB) {
     log.answerUserB = answer.trim()
-    log.userBAnsweredAt = new Date()
+    log.userBAnsweredAt = dayjs().tz(time.vn_tz).toDate()
   }
 
   if (log.answerUserA && log.answerUserB) {
     log.isCompleted = true
   }
-
   const updatedLog = await log.save()
+  //thông báo cho người kia là đã trả lời
+  const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
+  const not = await Notification.create({
+    coupleId: user.coupleId,
+    fromUserId: user.id,
+    toUserId: receiverId,
+    type: 'feed_pet',
+    content: `${user.username} vừa cho Pet ăn.`
+  })
 
+  sendNot(io, not)
+  //hoàn thành nhiệm vụ trả lời câu hỏi
   const key = 'answer_question_together'
   await completeDailyMission(user.id, user.coupleId, key)
 
@@ -119,10 +144,13 @@ const dailyQuestion = catchAsync(async (req, res) => {
 
 const getDailyQuestionFeedback = catchAsync(async (req, res) => {
   const user = req.user
-  const today = new Date().toISOString().slice(0, 10)
+
+  const startOfToday = dayjs().tz(time.vn_tz).startOf('day').toDate()
+  const endOfToday = dayjs().tz(time.vn_tz).endOf('day').toDate()
+
   let log = await DailyQuestion.findOne({
     coupleId: user.coupleId,
-    date: today
+    date: { $gte: startOfToday, $lte: endOfToday }
   }).populate({
     path: 'coupleId',
     select: 'userIdA userIdB'

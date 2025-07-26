@@ -2,13 +2,26 @@ const { StatusCodes } = require('http-status-codes')
 
 const { catchAsync, response, ApiError } = require('../utils')
 const { CoupleMissionLog, Mission } = require('../models')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const { time } = require('../config/env.config')
 
-const getMissions = catchAsync(async (req, res) => {
-  const missions = await CoupleMissionLog.find({}).populate({
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+const getDailyMissions = catchAsync(async (req, res) => {
+  const startOfToday = dayjs().tz(time.vn_tz).startOf('day').toDate()
+  const endOfToday = dayjs().tz(time.vn_tz).endOf('day').toDate()
+
+  const missions = await CoupleMissionLog.find({
+    coupleId: req.user.coupleId,
+    date: { $gte: startOfToday, $lte: endOfToday }
+  }).populate({
     path: 'missionId',
     match: { isActive: true },
     select: 'isActive description'
-  })
+  }).select("coupleId date isCompleted")
 
   if (missions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')
@@ -16,7 +29,7 @@ const getMissions = catchAsync(async (req, res) => {
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy danh sách nhiệm vụ thành công.', {
-      missions: missions
+      missions
     })
   )
 })
@@ -101,7 +114,7 @@ const getMissionsTomorrow = catchAsync(async (req, res) => {
 })
 
 module.exports = {
-  getMissions,
+  getDailyMissions,
   createMission,
   editMission,
   deleteMission,

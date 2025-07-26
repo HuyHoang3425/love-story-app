@@ -4,5 +4,6 @@ module.exports = {
   response: require('./response'),
   generate: require('./generate'),
   jwt: require('./jwt'),
-  usersOnline: require('./usersOnline')
+  usersOnline: require('./usersOnline'),
+  levelPet: require('./levelPet')
 }
