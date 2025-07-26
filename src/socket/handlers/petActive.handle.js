@@ -15,5 +15,4 @@ const petActive = (socket) => {
     }
   })
 }
-
 module.exports = petActive
