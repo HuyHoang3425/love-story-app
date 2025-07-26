@@ -1,4 +1,4 @@
-const { User } = require('../models')
+const { User, RoomChat } = require('../models')
 const bcrypt = require('bcrypt')
 const { StatusCodes } = require('http-status-codes')
 
@@ -199,8 +199,14 @@ const profile = catchAsync(async (req, res) => {
   if (!userObj.coupleId) {
     userObj.coupleId = null
   }
+  const roomChat = await RoomChat.findOne({ coupleId: user.coupleId })
 
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', userObj))
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', {
+      userObj,
+      roomChatId:roomChat.id
+    })
+  )
 })
 
 const sendOtp = catchAsync(async (req, res) => {
