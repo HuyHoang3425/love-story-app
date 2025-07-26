@@ -35,7 +35,7 @@ const env = {
     hunger_value: process.env.HUNGER_VALUE
   },
   time: {
-    vn_tz: process.env.VN_TZ,
+    vn_tz: process.env.VN_TZ
   }
 }
 

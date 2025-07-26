@@ -47,7 +47,6 @@ if (env.server.nodeEnv === 'development') {
 app.use('/api/v1', router)
 
 app.get('/', (req, res) => {
-  dailyQuestion.generateDailyQuestionTomorrow()
   res.send('Backend Server for Love Story App is running!')
 })
 

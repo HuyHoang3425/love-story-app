@@ -11,10 +11,7 @@ dayjs.extend(timezone)
 const generateDailyQuestionTomorrow = async () => {
   // Ngày mai
   const now = dayjs().tz(time.vn_tz)
-  const startOfTomorrow = now.add(1, 'day').startOf('day')
-
-  console.log("to date" + startOfTomorrow.toDate())
-  console.log("string:" + startOfTomorrow.format())
+  const startOfTomorrow = now.add(1, 'day').startOf('day').toDate()
 
   const couples = await Couple.find({})
 

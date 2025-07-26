@@ -15,7 +15,7 @@ const generateDailyMissionsTomorrow = async () => {
 
   // Ngày mai
   const now = dayjs().tz(time.vn_tz)
-  const startOfTomorrow = now.add(1, 'day').startOf('day')
+  const startOfTomorrow = now.add(1, 'day').startOf('day').toDate()
 
   for (const couple of couples) {
     // Kiểm tra nếu đã có nhiệm vụ cho ngày mai
