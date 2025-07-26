@@ -114,7 +114,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
     fromUserId: user.id,
     toUserId: receiverId,
     type: 'feed_pet',
-    content: `${user.username} vừa cho Pet ăn.`
+    content: `${user.username} vừa trả lời câu hỏi hằng ngày.`
   })
 
   sendNot(io, not)
