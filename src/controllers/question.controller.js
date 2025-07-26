@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes')
 
 const { completeDailyMission } = require('../services')
 const { catchAsync, response, ApiError } = require('../utils')
-const { Question, DailyQuestion, Mission, Couple } = require('../models')
+const { Question, DailyQuestion, Mission, Couple, Notification } = require('../models')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -53,25 +53,6 @@ const getDailyQuestion = catchAsync(async (req, res) => {
     coupleId: user.coupleId,
     date: { $gte: startOfToday, $lte: endOfToday }
   }).populate('questionId')
-
-  // if (!dailyQuestion) {
-  //   const usedQuestionIds = await DailyQuestion.find({ coupleId: user.coupleId }).distinct('questionId')
-  //   const unusedQuestions = await Question.find({ _id: { $nin: usedQuestionIds } })
-
-  //   if (unusedQuestions.length === 0) {
-  //     throw new ApiError(StatusCodes.BAD_REQUEST, 'Hết câu hỏi!')
-  //   }
-
-  //   const randomQuestion = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)]
-
-  //   dailyQuestion = await DailyQuestion.create({
-  //     coupleId: user.coupleId,
-  //     questionId: randomQuestion._id,
-  //     date: dayjs().tz(time.vn_tz).toDate()
-  //   })
-
-  //   dailyQuestion.questionId = randomQuestion
-  // }
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy câu hỏi hôm nay thành công.', {
