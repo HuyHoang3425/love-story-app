@@ -16,7 +16,7 @@ module.exports.initSocket = (server) => {
 
   io.on('connection', (socket) => {
     console.log('Socket connected:', socket.id)
-
+    socket.join(socket.roomChatId)
     usersOnline.addUser(socket.user.id, socket.id)
 
     coupleHandle.couple(socket, io)
