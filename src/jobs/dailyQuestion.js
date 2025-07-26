@@ -1,16 +1,24 @@
 const { Couple, DailyQuestion, Question } = require('../models')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+
+const { time } = require('../config/env.config')
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const generateDailyQuestionTomorrow = async () => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(0, 0, 0, 0)
+  // Ngày mai
+  const now = dayjs().tz(time.vn_tz)
+  const startOfTomorrow = now.add(1, 'day').startOf('day')
 
   const couples = await Couple.find({})
 
   for (const couple of couples) {
     const exists = await DailyQuestion.exists({
       coupleId: couple._id,
-      date: tomorrow
+      date: startOfTomorrow
     })
 
     if (!exists) {
@@ -24,7 +32,7 @@ const generateDailyQuestionTomorrow = async () => {
       await DailyQuestion.create({
         coupleId: couple._id,
         questionId: randomQuestion._id,
-        date: tomorrow
+        date: startOfTomorrow
       })
       console.log('đã tạo câu hỏi cho ngày mai')
     }
@@ -32,11 +40,10 @@ const generateDailyQuestionTomorrow = async () => {
 }
 
 const deleteUncompletedQuestions = async () => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const now = dayjs().tz(time.vn_tz).startOf('day').toDate()
 
   await DailyQuestion.deleteMany({
-    date: { $lt: today },
+    date: { $lt: now },
     isCompleted: false
   })
 }

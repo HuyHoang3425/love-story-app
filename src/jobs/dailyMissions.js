@@ -1,5 +1,12 @@
-const cron = require('node-cron')
 const { Mission, CoupleMissionLog, Couple } = require('../models')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+
+const { time } = require('../config/env.config')
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const generateDailyMissionsTomorrow = async () => {
   const [missions, couples] = await Promise.all([Mission.find({ isActive: true }), Couple.find({})])
@@ -7,15 +14,14 @@ const generateDailyMissionsTomorrow = async () => {
   const bulk = []
 
   // Ngày mai
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(0, 0, 0, 0)
+  const now = dayjs().tz(time.vn_tz)
+  const startOfTomorrow = now.add(1, 'day').startOf('day')
 
   for (const couple of couples) {
     // Kiểm tra nếu đã có nhiệm vụ cho ngày mai
     const exists = await CoupleMissionLog.exists({
       coupleId: couple._id,
-      date: tomorrow
+      date: startOfTomorrow
     })
 
     if (!exists) {
@@ -23,7 +29,7 @@ const generateDailyMissionsTomorrow = async () => {
         bulk.push({
           coupleId: couple._id,
           missionId: mission._id,
-          date: tomorrow
+          date: startOfTomorrow
         })
       }
     }
@@ -36,11 +42,10 @@ const generateDailyMissionsTomorrow = async () => {
 }
 
 const deleteUncompletedMissions = async () => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const now = dayjs().tz(time.vn_tz).startOf('day').toDate()
 
   await CoupleMissionLog.deleteMany({
-    date: { $lt: today },
+    date: { $lt: now },
     isCompleted: false
   })
 }

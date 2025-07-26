@@ -13,12 +13,6 @@ const { response } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
 const { dailyMission, dailyQuestion, decreasePetHunger } = require('./jobs')
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
-const timezone = require('dayjs/plugin/timezone')
-
-dayjs.extend(utc)
-dayjs.extend(timezone)
 
 const app = express()
 
@@ -53,15 +47,6 @@ if (env.server.nodeEnv === 'development') {
 app.use('/api/v1', router)
 
 app.get('/', (req, res) => {
-  const VN_TZ = 'Asia/Ho_Chi_Minh'
-
-  const now = dayjs().tz(VN_TZ)
-  const startOfTomorrow = now.add(1, 'day').startOf('day')
-  const endOfTomorrow = now.add(1, 'day').endOf('day')
-
-  console.log('Thời gian hiện tại (VN):', now.format())
-  console.log('Đầu ngày mai (VN):', startOfTomorrow.format())
-  console.log('Cuối ngày mai (VN):', endOfTomorrow.format())
   res.send('Backend Server for Love Story App is running!')
 })
 
