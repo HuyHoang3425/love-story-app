@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const { time } = require('../config/env.config')
-const { couple } = require('../socket/handlers/couple.handle')
+const sendNot = require('../socket/handlers/notification.handle')
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
