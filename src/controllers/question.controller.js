@@ -7,6 +7,7 @@ const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const { time } = require('../config/env.config')
+const { getIO } = require('../socket/index')
 const sendNot = require('../socket/handlers/notification.handle')
 
 dayjs.extend(utc)
@@ -106,6 +107,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
   }
   const updatedLog = await log.save()
   //thông báo cho người kia là đã trả lời
+  const io = getIO()
   const receiverId = couple.userIdB == user.id ? couple.userIdA : couple.userIdB
   const not = await Notification.create({
     coupleId: user.coupleId,
