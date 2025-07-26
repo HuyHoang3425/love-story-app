@@ -18,7 +18,7 @@ const getNot = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Chưa có thông báo nào!')
   }
   res.status(StatusCodes.OK).json(
-    response(StatusCodes.OK, 'Cho Pet ăn thành công.', {
+    response(StatusCodes.OK, 'Lấy thông báo thành công.', {
       nots: nots,
       totalNots,
       totalPages: Math.ceil(totalNots / +limit),

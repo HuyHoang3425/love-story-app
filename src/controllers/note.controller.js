@@ -3,6 +3,7 @@ const dayjs = require('dayjs')
 
 const { catchAsync, response, ApiError } = require('../utils')
 const { Note, Notification, Couple } = require('../models')
+const { getIO } = require('../socket/index')
 const sendNot = require('../socket/handlers/notification.handle')
 
 const getNotes = catchAsync(async (req, res) => {
@@ -26,6 +27,7 @@ const getNotes = catchAsync(async (req, res) => {
 })
 
 const createNote = catchAsync(async (req, res) => {
+  const io = getIO()
   const { content, date } = req.body
   const user = req.user
   const newNote = await Note.create({
@@ -57,6 +59,7 @@ const createNote = catchAsync(async (req, res) => {
 })
 
 const editNote = catchAsync(async (req, res) => {
+  const io = getIO()
   const { noteId } = req.params
   const { content } = req.body
   const user = req.user
@@ -103,6 +106,7 @@ const editNote = catchAsync(async (req, res) => {
 })
 
 const deleteNote = catchAsync(async (req, res) => {
+  const io = getIO()
   const { noteId } = req.params
   const user = req.user
   const note = await Note.findById(noteId)
