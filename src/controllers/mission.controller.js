@@ -17,11 +17,13 @@ const getDailyMissions = catchAsync(async (req, res) => {
   const missions = await CoupleMissionLog.find({
     coupleId: req.user.coupleId,
     date: { $gte: startOfToday, $lte: endOfToday }
-  }).populate({
-    path: 'missionId',
-    match: { isActive: true },
-    select: 'isActive description'
-  }).select("coupleId date isCompleted")
+  })
+    .populate({
+      path: 'missionId',
+      match: { isActive: true },
+      select: 'isActive description'
+    })
+    .select('coupleId date isCompleted')
 
   if (missions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')
