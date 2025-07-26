@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog } = require('../../models')
+const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog, RoomChat } = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
 const { dailyQuestion, dailyMission } = require('../../jobs')
 
@@ -14,7 +14,6 @@ module.exports.couple = catchAsync(async (socket, io) => {
       coupleCode: data.coupleCode
     })
     if (!userB) {
-      console.log('Mã coupleCode không hợp lệ!')
       return socket.emit('ERROR', {
         status: StatusCodes.BAD_REQUEST,
         message: 'Mã coupleCode không hợp lệ!'
@@ -241,8 +240,14 @@ module.exports.couple = catchAsync(async (socket, io) => {
           await CoupleMissionLog.insertMany(bulk, { ordered: false })
         }
       })(),
-      (async () => await dailyQuestion.generateDailyQuestionTomorrow())(),
-      (async () => await dailyMission.generateDailyMissionsTomorrow())()
+      (async () => {
+        await RoomChat.create({
+          coupleId: newCouple.id,
+          members: [userA.id, userB.id]
+        })
+      })(),
+      dailyQuestion.generateDailyQuestionTomorrow(),
+      dailyMission.generateDailyMissionsTomorrow()
     ])
 
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })

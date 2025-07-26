@@ -1,7 +1,13 @@
 const { Message } = require('../../models')
 const { ChatValidation } = require('../../validations')
 const chat = (io, socket) => {
+ 
   socket.on('USER_SEND_MESSAGE', async (data) => {
+     if (!socket.roomChatId) {
+       return socket.emit('ERROR', {
+         message:"bạn chưa kết nối Couple"
+       })
+     }
     socket.join(socket.roomChatId)
     const { error, value } = ChatValidation.message.validate(data)
     if (error) {
@@ -21,3 +27,5 @@ const chat = (io, socket) => {
 
   })
 }
+
+module.exports = chat

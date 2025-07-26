@@ -63,7 +63,6 @@ const feedPet = catchAsync(async (req, res) => {
 
   pet.hunger = Math.min(pet.hunger + food.nutritionValue, 100)
   const levelHappinessMax = levelPet.getHappinessofLevel(pet.happiness)
-  console.log(levelHappinessMax)
   pet.happiness = Math.min(pet.happiness + food.happinessValue, levelHappinessMax)
   pet.lastFedAt = new Date()
   await pet.save()

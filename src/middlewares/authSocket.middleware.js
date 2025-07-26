@@ -16,12 +16,10 @@ const authSocket = async (socket, next) => {
   if (!user) {
     return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Người dùng không tồn tại!'))
   }
-  const roomChat = await RoomChat.findOne({ coupleId: user.coupleId })
-  if (!roomChat) {
-    return next(new ApiError(StatusCodes.FORBIDDEN, 'Không có quyền truy cập room chat'))
-  }
+
   socket.user = user
-  socket.roomChatId = roomChat.id
+  const roomChat = await RoomChat.findOne({ coupleId: user.coupleId })
+  socket.roomChatId = roomChat ? roomChat.id : null
   next()
 }
 
