@@ -21,7 +21,7 @@ const getDailyMissions = catchAsync(async (req, res) => {
     .populate({
       path: 'missionId',
       match: { isActive: true },
-      select: 'isActive description coin'
+      select: 'isActive description coin key'
     })
     .select('coupleId date isCompleted')
 
