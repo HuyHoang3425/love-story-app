@@ -24,14 +24,14 @@ const chat = (io, socket) => {
       })
     }
 
-    await Message.create({
+    const message = await Message.create({
       roomChatId: socket.roomChatId,
       senderId: value.senderId,
       content: value.content,
       images: value.images
     })
 
-    io.to(socket.roomChatId).emit('SERVER_RETURN_MESSAGE', value)
+    io.to(socket.roomChatId).emit('SERVER_RETURN_MESSAGE', message)
   })
 
   socket.on('CLIENT_SEND_TYPING', (data) => {
