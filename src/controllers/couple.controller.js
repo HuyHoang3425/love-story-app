@@ -1,7 +1,17 @@
 const { catchAsync, response, ApiError } = require('../utils')
 const StatusCodes = require('http-status-codes')
 
-const { User, Couple, Pet, CoupleMissionLog, UserMissionLog, DailyQuestion, RoomChat } = require('../models/index')
+const {
+  User,
+  Couple,
+  Pet,
+  CoupleMissionLog,
+  UserMissionLog,
+  DailyQuestion,
+  RoomChat,
+  FeedingLog,
+  Notification
+} = require('../models/index')
 const socketCouple = require('../socket/handlers/couple.handle')
 const socket = require('../socket')
 
@@ -105,7 +115,7 @@ const disconnect = catchAsync(async (req, res) => {
   }
 
   const userB = await User.findById(couple.userIdA.toString() === id ? couple.userIdB : couple.userIdA)
-  
+
   await RoomChat.deleteOne({ coupleId: userA.coupleId })
 
   userA.coupleId = undefined
@@ -118,6 +128,8 @@ const disconnect = catchAsync(async (req, res) => {
     UserMissionLog.deleteMany({ coupleId: couple._id }),
     DailyQuestion.deleteMany({ coupleId: couple._id }),
     Couple.deleteOne({ _id: couple.id }),
+    Notification.deleteMany({ coupleId: couple._id }),
+    FeedingLog.deleteMany({ coupleId: couple._id })
   ])
 
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Huỷ kết nối thành công.'))

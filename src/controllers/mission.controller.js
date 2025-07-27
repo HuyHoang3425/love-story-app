@@ -21,9 +21,9 @@ const getDailyMissions = catchAsync(async (req, res) => {
     .populate({
       path: 'missionId',
       match: { isActive: true },
-      select: 'isActive description coin key'
+      select: 'isActive description coin key type'
     })
-    .select('coupleId date isCompleted')
+    .select('coupleId date isCompleted countCompleted')
 
   if (missions.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Danh sách nhiệm vụ trống.')

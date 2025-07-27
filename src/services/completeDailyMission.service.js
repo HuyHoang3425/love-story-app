@@ -1,6 +1,14 @@
 const { StatusCodes } = require('http-status-codes')
 const ApiError = require('../utils/ApiError')
 const { CoupleMissionLog, Couple, UserMissionLog, Mission } = require('../models')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+
+const { time } = require('../config/env.config')
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const completeDailyMission = async (userId, coupleId, key) => {
   const mission = await Mission.findOne({ key: key })
@@ -10,11 +18,13 @@ const completeDailyMission = async (userId, coupleId, key) => {
   const isUserA = String(userId) === String(couple.userIdA)
   const isUserB = String(userId) === String(couple.userIdB)
 
-  const today = new Date().toISOString().slice(0, 10)
+  const startOfToday = dayjs().tz(time.vn_tz).startOf('day').toDate()
+  const endOfToday = dayjs().tz(time.vn_tz).endOf('day').toDate()
 
   const coupleMission = await CoupleMissionLog.findOne({
     coupleId,
-    missionId: mission.id
+    missionId: mission.id,
+    date: { $gte: startOfToday, $lte: endOfToday }
   })
 
   if (!coupleMission) {
@@ -28,27 +38,28 @@ const completeDailyMission = async (userId, coupleId, key) => {
   let log = await UserMissionLog.findOne({
     coupleId,
     missionId: mission.id,
-    date: today
+    date: { $gte: startOfToday, $lte: endOfToday }
   })
   if (mission.type === 'private') {
     if (!log) {
       const newLogData = {
         coupleId,
         missionId: mission.id,
-        date: today
+        date: dayjs().tz(time.vn_tz).toDate()
       }
 
       if (isUserA) {
         newLogData.userIdACompleted = userId
-        newLogData.userACompletedAt = new Date()
+        newLogData.userACompletedAt = dayjs().tz(time.vn_tz).toDate()
       } else if (isUserB) {
         newLogData.userIdBCompleted = userId
-        newLogData.userBCompletedAt = new Date()
+        newLogData.userBCompletedAt = dayjs().tz(time.vn_tz).toDate()
       }
 
       await UserMissionLog.create(newLogData)
 
       coupleMission.isCompleted = true
+      coupleMission.countCompleted += 1
       couple.coin += mission.coin
       await Promise.all([couple.save(), coupleMission.save()])
     }
@@ -57,19 +68,20 @@ const completeDailyMission = async (userId, coupleId, key) => {
       log = await UserMissionLog.create({
         coupleId,
         missionId: mission.id,
-        date: today
+        date: dayjs().tz(time.vn_tz).toDate()
       })
     }
 
     if (isUserA && !log.userIdACompleted) {
       log.userIdACompleted = userId
-      log.userACompletedAt = new Date()
+      log.userACompletedAt = dayjs().tz(time.vn_tz).toDate()
     } else if (isUserB && !log.userIdBCompleted) {
       log.userIdBCompleted = userId
-      log.userBCompletedAt = new Date()
+      log.userBCompletedAt = dayjs().tz(time.vn_tz).toDate()
     }
 
-    await log.save()
+    coupleMission.countCompleted += 1
+    await Promise.all([log.save(), coupleMission.save()])
 
     if (log.userIdACompleted && log.userIdBCompleted) {
       coupleMission.isCompleted = true
