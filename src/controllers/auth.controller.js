@@ -200,7 +200,9 @@ const profile = catchAsync(async (req, res) => {
     userObj.coupleId = null
   }
   const roomChat = await RoomChat.findOne({ coupleId: user.coupleId })
-  userObj.roomChatId = roomChat.id
+  if (roomChat) {
+    userObj.roomChatId = roomChat.id
+  }
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'lấy thông tin người dùng thành công.', userObj))
 })
 
