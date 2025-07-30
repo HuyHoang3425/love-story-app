@@ -247,11 +247,12 @@ module.exports.couple = catchAsync(async (socket, io) => {
       dailyQuestion.generateDailyQuestionTomorrow(),
       dailyMission.generateDailyMissionsTomorrow()
     ])
+    
     // thông báo kết bạn thành công
     socket.emit('SUCCESS', {
-      message: 'Kết đôi thành công!',
-      roomChatId,
+      message: 'Kết đôi thành công!'
     })
+
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
     await User.updateOne(
       { _id: userIdA },
@@ -272,15 +273,19 @@ module.exports.couple = catchAsync(async (socket, io) => {
       }
     )
 
-    const socketId = usersOnline.getSocketId(userIdB)
+    const socketBId = usersOnline.getSocketId(userIdB)
+    const socketAId = usersOnline.getSocketId(userIdA)
+
+    if (socketAId) socket.to(socketAId).emit('SERVER_RETURN_ROOM_CHAT_ID', roomChatId)
+    if (socketBId) socket.to(socketBId).emit('SERVER_RETURN_ROOM_CHAT_ID', roomChatId)
 
     socket.emit('SERVER_RETURN_USER_ACCEPT_ACCEPT', {
       myUserId: userA.id,
       yourUserId: userB.id
     })
 
-    if (socketId) {
-      socket.to(socketId).emit('SERVER_RETURN_USER_REQUEST_REQUEST', {
+    if (socketBId) {
+      socket.to(socketBId).emit('SERVER_RETURN_USER_REQUEST_REQUEST', {
         myUserId: userB.id,
         yourUserId: userA.id
       })
