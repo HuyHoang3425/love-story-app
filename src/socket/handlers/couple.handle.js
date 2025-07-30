@@ -199,10 +199,6 @@ module.exports.couple = catchAsync(async (socket, io) => {
         message: 'Bạn đã có Couple rồi!!!'
       })
     }
-    // thông báo kết bạn thành công
-    socket.emit('SUCCESS', {
-      message: 'Kết đôi thành công!'
-    })
 
     const newCouple = await Couple.create({
       userIdA,
@@ -213,6 +209,7 @@ module.exports.couple = catchAsync(async (socket, io) => {
     //tạo các nhiệm vụ đầu tiên
     //toạ câu hỏi cho ngày mai
     //tạo nhiệm vụ cho ngày mai
+    let roomChatId
     await Promise.all([
       (async () => {
         const usedQuestionIds = await DailyQuestion.find({ coupleId: newCouple._id }).distinct('questionId')
@@ -241,15 +238,20 @@ module.exports.couple = catchAsync(async (socket, io) => {
         }
       })(),
       (async () => {
-        await RoomChat.create({
+        const roomChat = await RoomChat.create({
           coupleId: newCouple.id,
           members: [userA.id, userB.id]
         })
+        roomChatId = roomChat.id
       })(),
       dailyQuestion.generateDailyQuestionTomorrow(),
       dailyMission.generateDailyMissionsTomorrow()
     ])
-
+    // thông báo kết bạn thành công
+    socket.emit('SUCCESS', {
+      message: 'Kết đôi thành công!',
+      roomChatId,
+    })
     await User.updateMany({ _id: { $in: [userIdA, userIdB] } }, { $set: { coupleId: newCouple._id } })
     await User.updateOne(
       { _id: userIdA },
