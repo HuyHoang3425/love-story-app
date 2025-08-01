@@ -276,8 +276,16 @@ module.exports.couple = catchAsync(async (socket, io) => {
     const socketBId = usersOnline.getSocketId(userIdB)
     const socketAId = usersOnline.getSocketId(userIdA)
 
-    if (socketAId) socket.to(socketAId).emit('SERVER_RETURN_ROOM_CHAT_ID', roomChatId)
-    if (socketBId) socket.to(socketBId).emit('SERVER_RETURN_ROOM_CHAT_ID', roomChatId)
+    if (socketAId) socket.to(socketAId).emit('SERVER_RETURN_COUPLE', {
+      roomChatId,
+      myUserId:userIdA,
+      myLoveId:userIdB,
+    })
+    if (socketBId) socket.to(socketBId).emit('SERVER_RETURN_COUPLE', {
+      roomChatId,
+      myUserId: userIdA,
+      myLoveId: userIdB
+    })
 
     socket.emit('SERVER_RETURN_USER_ACCEPT_ACCEPT', {
       myUserId: userA.id,
