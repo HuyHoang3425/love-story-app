@@ -2,14 +2,23 @@ const { Message } = require('../../models')
 const { ChatValidation } = require('../../validations')
 
 const chat = (io, socket) => {
-  // Join room nếu có roomChatId
-  if (socket.roomChatId) {
-    socket.join(socket.roomChatId)
-  }
+  let roomChatId
 
+  // Nếu socket đã có room sẵn
+  if (socket.roomChatId) {
+    roomChatId = socket.roomChatId
+    socket.join(roomChatId)
+  }else{
+    // Lắng nghe sự kiện client gửi roomChatId
+    socket.on('USER_SEND_ROOM_CHAT_ID', (data) => {
+      roomChatId = data.roomChatId
+      socket.roomChatId = data.roomChatId
+      socket.join(roomChatId)
+    })
+  }
   // Gửi tin nhắn
   socket.on('USER_SEND_MESSAGE', async (data) => {
-    if (!socket.roomChatId) {
+    if (!roomChatId) {
       return socket.emit('ERROR', {
         message: 'Bạn chưa kết nối Couple'
       })
@@ -25,13 +34,13 @@ const chat = (io, socket) => {
 
     try {
       const message = await Message.create({
-        roomChatId: socket.roomChatId,
+        roomChatId,
         senderId: socket.user.id,
         content: value.content,
         images: value.images
       })
 
-      io.to(socket.roomChatId).emit('SERVER_RETURN_MESSAGE', message)
+      io.to(roomChatId).emit('SERVER_RETURN_MESSAGE', message)
     } catch (err) {
       console.error('Message save error:', err)
       socket.emit('ERROR', {
@@ -42,7 +51,9 @@ const chat = (io, socket) => {
 
   // Hiển thị đang gõ
   socket.on('CLIENT_SEND_TYPING', (data) => {
-    socket.to(socket.roomChatId).emit('SERVER_RETURN_TYPING', data)
+    if (roomChatId) {
+      socket.to(roomChatId).emit('SERVER_RETURN_TYPING', data)
+    }
   })
 }
 
