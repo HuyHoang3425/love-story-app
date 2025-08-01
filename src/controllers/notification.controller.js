@@ -14,9 +14,6 @@ const getNot = catchAsync(async (req, res) => {
     Notification.countDocuments({ coupleId: user.coupleId })
   ])
 
-  if (nots.length === 0) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Chưa có thông báo nào!')
-  }
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy thông báo thành công.', {
       nots: nots,
