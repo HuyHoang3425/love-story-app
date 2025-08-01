@@ -275,8 +275,6 @@ module.exports.couple = catchAsync(async (socket, io) => {
 
     const socketBId = usersOnline.getSocketId(userIdB.toString())
     const socketAId = usersOnline.getSocketId(userIdA.toString())
-    console.log(userIdA)
-    console.log(userIdB)
     socket.emit('SERVER_RETURN_COUPLE', {
       roomChatId,
       myUserId:userIdA,
@@ -308,6 +306,8 @@ const loveStarted = (io, myLoveId) => {
     loveStartedAtEdited: true
   })
 }
+
+
 module.exports = {
   loveStarted
 }

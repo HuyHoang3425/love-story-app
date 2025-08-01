@@ -42,12 +42,6 @@ const chat = (io, socket) => {
 
   // Hiển thị đang gõ
   socket.on('CLIENT_SEND_TYPING', (data) => {
-    if (!socket.roomChatId) {
-      return socket.emit('ERROR', {
-        message: 'Bạn chưa kết nối Couple'
-      })
-    }
-
     socket.to(socket.roomChatId).emit('SERVER_RETURN_TYPING', data)
   })
 }
