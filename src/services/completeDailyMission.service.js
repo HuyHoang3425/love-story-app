@@ -1,5 +1,7 @@
 const { StatusCodes } = require('http-status-codes')
+
 const ApiError = require('../utils/ApiError')
+const { completedMission } = require('../socket/handlers/completedMission')
 const { CoupleMissionLog, Couple, UserMissionLog, Mission } = require('../models')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -11,6 +13,8 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const completeDailyMission = async (userId, coupleId, key) => {
+  const { getIO } = require('../socket')
+  const io = getIO()
   const mission = await Mission.findOne({ key: key })
   if (!mission) throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy nhiệm vụ.')
 
@@ -61,6 +65,10 @@ const completeDailyMission = async (userId, coupleId, key) => {
       coupleMission.isCompleted = true
       coupleMission.countCompleted += 1
       couple.coin += mission.coin
+      const data = {
+        coin:couple.coin
+      }
+      completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(),data)
       await Promise.all([couple.save(), coupleMission.save()])
     }
   } else if (mission.type === 'shared') {
@@ -86,6 +94,10 @@ const completeDailyMission = async (userId, coupleId, key) => {
     if (log.userIdACompleted && log.userIdBCompleted) {
       coupleMission.isCompleted = true
       couple.coin += mission.coin
+       const data = {
+         coin: couple.coin
+       }
+       completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(), data)
       await Promise.all([couple.save(), coupleMission.save()])
     }
   }
