@@ -284,8 +284,8 @@ module.exports.couple = catchAsync(async (socket, io) => {
     })
     if (socketBId) socket.to(socketBId).emit('SERVER_RETURN_COUPLE', {
       roomChatId,
-      myUserId: userIdA,
-      myLoveId: userIdB
+      myUserId: userIdB,
+      myLoveId: userIdA
     })
 
     socket.emit('SERVER_RETURN_USER_ACCEPT_ACCEPT', {
