@@ -273,8 +273,8 @@ module.exports.couple = catchAsync(async (socket, io) => {
       }
     )
 
-    const socketBId = usersOnline.getSocketId(userIdB)
-    const socketAId = usersOnline.getSocketId(userIdA)
+    const socketBId = usersOnline.getSocketId(userIdB.toString())
+    const socketAId = usersOnline.getSocketId(userIdA.toString())
 
     if (socketAId) socket.to(socketAId).emit('SERVER_RETURN_COUPLE', {
       roomChatId,
