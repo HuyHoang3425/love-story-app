@@ -68,7 +68,8 @@ const userSchema = new mongoose.Schema(
     coupleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Couple'
-    }
+    },
+    public_key:String,
   },
   {
     timestamps: true

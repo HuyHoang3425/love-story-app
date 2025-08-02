@@ -53,10 +53,19 @@ const deleteUser = {
   })
 }
 
+const uploadPublicKey = {
+  body: joi.object({
+    public_key: joi.string().base64({ paddingRequired: false }).required().messages({
+      'any.required': 'Public key là bắt buộc.',
+      'string.base64': 'Public key phải là chuỗi base64 hợp lệ.'
+    })
+  })
+}
 module.exports = {
   createUser,
   getUsers,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  uploadPublicKey
 }

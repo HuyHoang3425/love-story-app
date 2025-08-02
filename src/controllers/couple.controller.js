@@ -45,21 +45,34 @@ const connect = catchAsync(async (req, res) => {
 
 const getInfoCouple = catchAsync(async (req, res) => {
   const id = req.user.id
-  const user = await User.findById(id).select('coupleId')
 
-  if (!user.coupleId) {
+  const user = await User.findById(id).select('coupleId')
+  if (!user?.coupleId) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
   }
 
   const couple = await Couple.findById(user.coupleId)
     .populate('userIdA', 'username avatar nickname gender dateOfBirth lastName firstName')
     .populate('userIdB', 'username avatar nickname gender dateOfBirth lastName firstName')
+
   if (!couple) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy Couple!')
   }
 
-  res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Lấy thông tin Couple thành công.', { couple }))
+  const myLoveId = couple.userIdA._id.toString() === id.toString() ? couple.userIdB._id : couple.userIdA._id
+
+  const myLove = await User.findById(myLoveId).select('public_key')
+
+  const coupleData = couple.toObject()
+  coupleData.public_key_my_love = myLove?.public_key || null
+
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy thông tin Couple thành công.', {
+      couple: coupleData
+    })
+  )
 })
+
 
 const editLoveStarted = catchAsync(async (req, res) => {
   const id = req.user.id
