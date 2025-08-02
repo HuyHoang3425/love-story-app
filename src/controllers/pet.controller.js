@@ -67,9 +67,6 @@ const feedPet = catchAsync(async (req, res) => {
   pet.lastFedAt = new Date()
   await pet.save()
 
-  const key = 'feed_pet'
-  await completeDailyMission(user.id, user.coupleId, key)
-
   await FeedingLog.create({
     coupleId: user.coupleId,
     petId: pet.id,
@@ -86,6 +83,10 @@ const feedPet = catchAsync(async (req, res) => {
     happiness: pet.happiness
   }
   feedPetHandel.feedPet(io, receiverId, user.id, data)
+
+  //hoàn thành nhiệm vụ
+  const key = 'feed_pet'
+  await completeDailyMission(user.id, user.coupleId, key)
 
   //thông báo
   const not = await Notification.create({
