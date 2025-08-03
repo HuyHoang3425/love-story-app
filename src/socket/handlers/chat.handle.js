@@ -21,6 +21,7 @@ const chat = (io, socket) => {
   }
   // Gửi tin nhắn
   socket.on('USER_SEND_MESSAGE', async (data) => {
+    console.log(data)
     if (!roomChatId) {
       return socket.emit('ERROR', {
         message: 'Bạn chưa kết nối Couple'
@@ -56,7 +57,7 @@ const chat = (io, socket) => {
       io.to(roomChatId).emit('SERVER_RETURN_MESSAGE', message)
 
       //hoàn thành nhiệm vụ
-      const key = 'answer_question_together'
+      const key = 'message_partner'
       await completeDailyMission(socket.user.id, socket.user.coupleId, key)
     } catch (err) {
       console.error('Message save error:', err)

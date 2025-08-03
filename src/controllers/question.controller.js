@@ -113,7 +113,7 @@ const dailyQuestion = catchAsync(async (req, res) => {
     coupleId: user.coupleId,
     fromUserId: user.id,
     toUserId: receiverId,
-    type: 'feed_pet',
+    type: 'answer_question',
     content: `${user.username} vừa trả lời câu hỏi hằng ngày.`
   })
 
