@@ -1,5 +1,8 @@
 const { Message } = require('../../models')
 const { ChatValidation } = require('../../validations')
+const sendNot = require('./notification.handle')
+const { Notification } = require('../../models') 
+const { completeDailyMission } = require('../../services')
 
 const chat = (io, socket) => {
   let roomChatId
@@ -8,7 +11,7 @@ const chat = (io, socket) => {
   if (socket.roomChatId) {
     roomChatId = socket.roomChatId
     socket.join(roomChatId)
-  }else{
+  } else {
     // Lắng nghe sự kiện client gửi roomChatId
     socket.on('USER_SEND_ROOM_CHAT_ID', (data) => {
       roomChatId = data.roomChatId
@@ -40,7 +43,21 @@ const chat = (io, socket) => {
         images: value.images
       })
 
+      //thông báo
+      const not = await Notification.create({
+        coupleId: socket.user.coupleId,
+        fromUserId: socket.user.id,
+        toUserId: data.toUserId,
+        type: 'chat_message',
+        content: `${socket.user.username} vừa gửi một tin nhắn.`
+      })
+      sendNot(io, not)
+
       io.to(roomChatId).emit('SERVER_RETURN_MESSAGE', message)
+
+      //hoàn thành nhiệm vụ
+      const key = 'answer_question_together'
+      await completeDailyMission(socket.user.id, socket.user.coupleId, key)
     } catch (err) {
       console.error('Message save error:', err)
       socket.emit('ERROR', {
