@@ -91,12 +91,16 @@ const deleteUser = catchAsync(async (req, res) => {
 
 const uploadPublicKey = catchAsync(async (req, res) => {
   const user = req.user
-  const  { public_key } = req.body
-  await User.updateOne({
-    _id:user.id
-  },{
-    public_key,
-  })
+  const { public_key, private_key } = req.body
+  await User.updateOne(
+    {
+      _id: user.id
+    },
+    {
+      public_key,
+      private_key
+    }
+  )
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lưu key thành công.'))
 })
 
@@ -106,5 +110,5 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  uploadPublicKey,
+  uploadPublicKey
 }

@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema(
       ref: 'Couple'
     },
     public_key:String,
+    private_key:String,
   },
   {
     timestamps: true

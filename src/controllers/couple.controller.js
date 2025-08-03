@@ -65,6 +65,7 @@ const getInfoCouple = catchAsync(async (req, res) => {
 
   const coupleData = couple.toObject()
   coupleData.public_key_my_love = myLove?.public_key || null
+  coupleData.private_key_user = user.private_key || null
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy thông tin Couple thành công.', {

@@ -58,6 +58,10 @@ const uploadPublicKey = {
     public_key: joi.string().base64({ paddingRequired: false }).required().messages({
       'any.required': 'Public key là bắt buộc.',
       'string.base64': 'Public key phải là chuỗi base64 hợp lệ.'
+    }),
+    private_key: joi.string().base64({ paddingRequired: false }).required().messages({
+      'any.required': 'Public key là bắt buộc.',
+      'string.base64': 'Public key phải là chuỗi base64 hợp lệ.'
     })
   })
 }
