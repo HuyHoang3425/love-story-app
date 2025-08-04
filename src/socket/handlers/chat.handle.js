@@ -46,7 +46,7 @@ const chat = (io, socket) => {
 
       //thông báo
       const not = await Notification.create({
-        coupleId: socket.user.coupleId,
+        coupleId: data.coupleId,
         fromUserId: socket.user.id,
         toUserId: data.toUserId,
         type: 'chat_message',
