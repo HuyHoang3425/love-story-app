@@ -92,14 +92,15 @@ const deleteUser = catchAsync(async (req, res) => {
 const uploadKey = catchAsync(async (req, res) => {
   const user = req.user
   const { public_key, private_key } = req.body
+  console.log("log ra coupleId" + user.coupleId)
   if (user.coupleId) {
     const roomChat = await RoomChat.findOne({
       coupleId: user.coupleId
     })
-
+    console.log("room chat " + roomChat)
     if (roomChat) {
       await Message.deleteMany({
-        roomChatId: roomChat.id
+        roomChatId: roomChat._id
       })
     }
   }
