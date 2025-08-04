@@ -1,6 +1,6 @@
 // models/Message.js
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const mongoose = require('mongoose')
+const { Schema } = mongoose
 
 const messageSchema = new Schema({
   roomChatId: {
@@ -25,4 +25,4 @@ const messageSchema = new Schema({
   }
 })
 
-module.exports = mongoose.model("Message", messageSchema);
+module.exports = mongoose.model('Message', messageSchema)

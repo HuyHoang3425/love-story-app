@@ -74,7 +74,6 @@ const getInfoCouple = catchAsync(async (req, res) => {
   )
 })
 
-
 const editLoveStarted = catchAsync(async (req, res) => {
   const id = req.user.id
 

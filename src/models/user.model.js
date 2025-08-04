@@ -69,8 +69,9 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Couple'
     },
-    public_key:String,
-    private_key:String,
+    public_key: String,
+    private_key: String,
+    fcmToken: String
   },
   {
     timestamps: true

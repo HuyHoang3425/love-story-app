@@ -16,6 +16,6 @@ userRouter.put('/:userId', validate(UserValidation.updateUser), UserController.u
 
 userRouter.delete('/:userId', validate(UserValidation.deleteUser), UserController.deleteUser)
 
-userRouter.post('/public-key', auth, validate(UserValidation.uploadPublicKey), UserController.uploadPublicKey)
+userRouter.post('/key', auth, validate(UserValidation.uploadPublicKey), UserController.uploadKey)
 
 module.exports = userRouter

@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 
-const { User } = require('../models')
+const { User, Couple, Message, RoomChat } = require('../models')
 const { catchAsync, ApiError, response } = require('../utils')
 
 const createUser = catchAsync(async (req, res) => {
@@ -89,9 +89,21 @@ const deleteUser = catchAsync(async (req, res) => {
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá người dùng thành công.'))
 })
 
-const uploadPublicKey = catchAsync(async (req, res) => {
+const uploadKey = catchAsync(async (req, res) => {
   const user = req.user
   const { public_key, private_key } = req.body
+  if (user.coupleId) {
+    const roomChat = await RoomChat.findOne({
+      coupleId: user.coupleId
+    })
+
+    if (roomChat) {
+      await Message.deleteMany({
+        roomChatId: roomChat.id
+      })
+    }
+  }
+
   await User.updateOne(
     {
       _id: user.id
@@ -110,5 +122,5 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
-  uploadPublicKey
+  uploadKey
 }

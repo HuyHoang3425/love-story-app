@@ -17,14 +17,14 @@ module.exports.initSocket = (server) => {
 
   io.on('connection', (socket) => {
     console.log('Socket connected:', socket.id)
-    
+
     usersOnline.addUser(socket.user.id, socket.id)
 
     coupleHandle.couple(socket, io)
 
     petActive(socket)
 
-    chat(io,socket)
+    chat(io, socket)
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)

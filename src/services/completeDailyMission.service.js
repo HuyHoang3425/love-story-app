@@ -66,9 +66,9 @@ const completeDailyMission = async (userId, coupleId, key) => {
       coupleMission.countCompleted += 1
       couple.coin += mission.coin
       const data = {
-        coin:couple.coin
+        coin: couple.coin
       }
-      completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(),data)
+      completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(), data)
       await Promise.all([couple.save(), coupleMission.save()])
     }
   } else if (mission.type === 'shared') {
@@ -94,10 +94,10 @@ const completeDailyMission = async (userId, coupleId, key) => {
     if (log.userIdACompleted && log.userIdBCompleted) {
       coupleMission.isCompleted = true
       couple.coin += mission.coin
-       const data = {
-         coin: couple.coin
-       }
-       completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(), data)
+      const data = {
+        coin: couple.coin
+      }
+      completedMission(io, couple.userIdA.toString(), couple.userIdB.toString(), data)
       await Promise.all([couple.save(), coupleMission.save()])
     }
   }

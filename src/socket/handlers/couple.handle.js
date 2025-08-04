@@ -247,7 +247,7 @@ module.exports.couple = catchAsync(async (socket, io) => {
       dailyQuestion.generateDailyQuestionTomorrow(),
       dailyMission.generateDailyMissionsTomorrow()
     ])
-    
+
     // thông báo kết bạn thành công
     socket.emit('SUCCESS', {
       message: 'Kết đôi thành công!'
@@ -277,16 +277,17 @@ module.exports.couple = catchAsync(async (socket, io) => {
     const socketAId = usersOnline.getSocketId(userIdA.toString())
     socket.emit('SERVER_RETURN_COUPLE', {
       roomChatId,
-      coupleId:newCouple.id,
-      myUserId:userIdA,
-      myLoveId:userIdB,
-    })
-    if (socketBId) socket.to(socketBId).emit('SERVER_RETURN_COUPLE', {
-      roomChatId,
       coupleId: newCouple.id,
-      myUserId: userIdB,
-      myLoveId: userIdA
+      myUserId: userIdA,
+      myLoveId: userIdB
     })
+    if (socketBId)
+      socket.to(socketBId).emit('SERVER_RETURN_COUPLE', {
+        roomChatId,
+        coupleId: newCouple.id,
+        myUserId: userIdB,
+        myLoveId: userIdA
+      })
 
     socket.emit('SERVER_RETURN_USER_ACCEPT_ACCEPT', {
       myUserId: userA.id,
@@ -308,7 +309,6 @@ const loveStarted = (io, myLoveId) => {
     loveStartedAtEdited: true
   })
 }
-
 
 module.exports = {
   loveStarted

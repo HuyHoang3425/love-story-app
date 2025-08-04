@@ -1,7 +1,7 @@
 const { Message } = require('../../models')
 const { ChatValidation } = require('../../validations')
 const sendNot = require('./notification.handle')
-const { Notification } = require('../../models') 
+const { Notification } = require('../../models')
 const { completeDailyMission } = require('../../services')
 
 const chat = (io, socket) => {

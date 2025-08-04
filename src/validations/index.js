@@ -7,5 +7,6 @@ module.exports = {
   QuestionValidation: require('./question.validation'),
   MissionValidation: require('./mission.validation'),
   CoupleValidation: require('./couple.validation'),
-  ChatValidation: require('./chat.validation')
+  ChatValidation: require('./chat.validation'),
+  NotificationValidation: require('./notification.validation')
 }
