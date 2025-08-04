@@ -25,20 +25,20 @@ const getNot = catchAsync(async (req, res) => {
   )
 })
 
-const sendNot = catchAsync(async (req, res) => {
-  const { token, title, body } = req.body
-  await sendNotificationToToken(token, title, body)
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi thông báo thành công!'))
-})
+// const sendNot = catchAsync(async (req, res) => {
+//   const { token, title, body } = req.body
+//   await sendNotificationToToken(token, title, body)
+//   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Gửi thông báo thành công!'))
+// })
 
-const saveFcmToken = catchAsync(async (req, res) => {
-  const { userId, fcmToken } = req.body
-  await User.findByIdAndUpdate(userId, { fcmToken })
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lưu thành thành công!'))
-})
+// const saveFcmToken = catchAsync(async (req, res) => {
+//   const { userId, fcmToken } = req.body
+//   await User.findByIdAndUpdate(userId, { fcmToken })
+//   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Lưu thành thành công!'))
+// })
 
 module.exports = {
   getNot,
-  sendNot,
-  saveFcmToken
+  // sendNot,
+  // saveFcmToken
 }
