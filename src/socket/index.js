@@ -5,6 +5,7 @@ const { authSocket } = require('../middlewares/')
 const { usersOnline } = require('../utils')
 const chat = require('./handlers/chat.handle')
 const petActive = require('./handlers/petActive.handle')
+const { sendKey } = require('./handlers/sendKey.handle')
 
 let io = null
 
@@ -25,6 +26,8 @@ module.exports.initSocket = (server) => {
     petActive(socket)
 
     chat(io, socket)
+
+    sendKey(io,socket)
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)
