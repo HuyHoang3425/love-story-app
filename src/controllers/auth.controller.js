@@ -156,7 +156,6 @@ const forgotPassword = catchAsync(async (req, res) => {
 
 const resetPassword = catchAsync(async (req, res) => {
   const { email, newPassword, repeatNewPassword, token } = req.body
-
   const checkExpire = jwt.isTokenExpired(token)
   if (checkExpire) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Token hết hạn.')
@@ -169,7 +168,7 @@ const resetPassword = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Token không hợp lệ cho email này.')
   }
 
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email }).select(" +password ")
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy người dùng.')
   }
@@ -178,7 +177,7 @@ const resetPassword = catchAsync(async (req, res) => {
   if (isNewPasswordMatch) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Vui lòng không sử dụng mật khẩu trước đó.')
   }
-
+  
   user.password = newPassword
   user.tokenOtp = null
   await user.save()
