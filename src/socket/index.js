@@ -27,7 +27,15 @@ module.exports.initSocket = (server) => {
 
     chat(io, socket)
 
-    sendKey(io,socket)
+    sendKey(io, socket)
+
+    socket.on('USER_LOGOUT', (data) => {
+      if (data.logout) {
+        console.log('👋 User logout:', socket.user.id)
+        usersOnline.removeUser(socket.user.id)
+        socket.disconnect(true)
+      }
+    })
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)

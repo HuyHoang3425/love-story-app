@@ -21,7 +21,6 @@ const chat = (io, socket) => {
   }
   // Gửi tin nhắn
   socket.on('USER_SEND_MESSAGE', async (data) => {
-    console.log(data)
     if (!roomChatId) {
       return socket.emit('ERROR', {
         message: 'Bạn chưa kết nối Couple'
