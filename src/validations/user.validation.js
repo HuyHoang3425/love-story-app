@@ -65,6 +65,7 @@ const uploadPublicKey = {
     })
   })
 }
+
 module.exports = {
   createUser,
   getUsers,
