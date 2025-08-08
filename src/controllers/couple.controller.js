@@ -46,7 +46,7 @@ const connect = catchAsync(async (req, res) => {
 const getInfoCouple = catchAsync(async (req, res) => {
   const id = req.user.id
 
-  const user = await User.findById(id).select('coupleId')
+  const user = await User.findById(id).select('coupleId private_key')
   if (!user?.coupleId) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa kết nối với My Love!')
   }
@@ -62,7 +62,7 @@ const getInfoCouple = catchAsync(async (req, res) => {
   const myLoveId = couple.userIdA._id.toString() === id.toString() ? couple.userIdB._id : couple.userIdA._id
 
   const myLove = await User.findById(myLoveId).select('public_key')
-
+  console.log(user)
   const coupleData = couple.toObject()
   coupleData.public_key_my_love = myLove?.public_key || null
   coupleData.private_key_user = user.private_key || null

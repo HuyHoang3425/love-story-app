@@ -13,6 +13,8 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const completeDailyMission = async (userId, coupleId, key) => {
+
+  console.log("LỖI:",userId,coupleId,key)
   const { getIO } = require('../socket')
   const io = getIO()
   const mission = await Mission.findOne({ key: key })

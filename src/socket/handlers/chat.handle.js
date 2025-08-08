@@ -57,8 +57,9 @@ const chat = (io, socket) => {
       io.to(roomChatId).emit('SERVER_RETURN_MESSAGE', message)
 
       //hoàn thành nhiệm vụ
+      console.log("chạy vô đây")
       const key = 'message_partner'
-      await completeDailyMission(socket.user.id, socket.user.coupleId, key)
+      await completeDailyMission(socket.user.id, data.coupleId, key)
     } catch (err) {
       console.error('Message save error:', err)
       socket.emit('ERROR', {

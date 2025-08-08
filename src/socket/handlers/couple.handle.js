@@ -204,7 +204,8 @@ module.exports.couple = catchAsync(async (socket, io) => {
       userIdA,
       userIdB
     })
-    await newCouple.save()
+    console.log('couple Id', newCouple._id.toString())
+    socket.join(newCouple._id.toString())
     //tạo câu hỏi đầu tiên
     //tạo các nhiệm vụ đầu tiên
     //toạ câu hỏi cho ngày mai
