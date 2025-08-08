@@ -112,7 +112,7 @@ const login = catchAsync(async (req, res) => {
 const changePassword = catchAsync(async (req, res) => {
   const { password, newPassword, repeatNewPassword } = req.body
   const id = req.user.id
-  const user = await User.findById(id)
+  const user = await User.findById(id).select("+password")
   const isPasswordMatch = await bcrypt.compare(password, user.password)
   if (!isPasswordMatch) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Nhập mật khẩu không chính xác.')
@@ -169,7 +169,7 @@ const resetPassword = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Token không hợp lệ cho email này.')
   }
 
-  const user = await User.findOne({ email })
+  const user = await User.findOne({ email }).select("+password")
   if (!user) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Không tìm thấy người dùng.')
   }
