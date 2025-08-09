@@ -1,7 +1,17 @@
 const { StatusCodes } = require('http-status-codes')
-const { User, Couple, DailyQuestion, Question, Mission, CoupleMissionLog, RoomChat } = require('../../models')
+const {
+  User,
+  Couple,
+  DailyQuestion,
+  Question,
+  Mission,
+  CoupleMissionLog,
+  RoomChat,
+  Status,
+  DailyStatus
+} = require('../../models')
 const { usersOnline, catchAsync } = require('../../utils')
-const { dailyQuestion, dailyMission } = require('../../jobs')
+const { dailyQuestion, dailyMission, dailyStatus } = require('../../jobs')
 
 module.exports.couple = catchAsync(async (socket, io) => {
   const myUserId = socket.user.id
@@ -239,6 +249,18 @@ module.exports.couple = catchAsync(async (socket, io) => {
         }
       })(),
       (async () => {
+        const usedStatusIds = await DailyStatus.find({ coupleId: newCouple._id }).distinct('statusId')
+        const unusedStatus = await Status.find({ _id: { $nin: usedStatusIds } })
+        if (unusedStatus.length > 0) {
+          const randomStatus = unusedStatus[Math.floor(Math.random() * unusedStatus.length)]
+          await DailyStatus.create({
+            coupleId: newCouple._id,
+            statusId: randomStatus._id,
+            date: new Date()
+          })
+        }
+      })(),
+      (async () => {
         const roomChat = await RoomChat.create({
           coupleId: newCouple.id,
           members: [userA.id, userB.id]
@@ -246,7 +268,8 @@ module.exports.couple = catchAsync(async (socket, io) => {
         roomChatId = roomChat.id
       })(),
       dailyQuestion.generateDailyQuestionTomorrow(),
-      dailyMission.generateDailyMissionsTomorrow()
+      dailyMission.generateDailyMissionsTomorrow(),
+      dailyStatus.generateDailyStatusTomorrow()
     ])
 
     // thông báo kết bạn thành công

@@ -38,7 +38,7 @@ const getNot = catchAsync(async (req, res) => {
 // })
 
 module.exports = {
-  getNot,
+  getNot
   // sendNot,
   // saveFcmToken
 }

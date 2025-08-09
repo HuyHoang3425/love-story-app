@@ -13,5 +13,7 @@ module.exports = {
   CoupleMissionLog: require('./couple-mission-log.model'),
   Notification: require('./notification.model'),
   Message: require('./message.model'),
-  RoomChat: require('./roomChat.model')
+  RoomChat: require('./roomChat.model'),
+  Status: require('./status.model'),
+  DailyStatus: require('./daily-status.model')
 }

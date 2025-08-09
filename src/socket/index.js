@@ -27,7 +27,7 @@ module.exports.initSocket = (server) => {
 
     chat(io, socket)
 
-    sendKey(io,socket)
+    sendKey(io, socket)
 
     socket.on('disconnect', () => {
       usersOnline.removeUser(socket.user.id)

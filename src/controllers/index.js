@@ -9,5 +9,6 @@ module.exports = {
   QuestionController: require('./question.controller'),
   MissionController: require('./mission.controller'),
   NotificationController: require('./notification.controller'),
-  ChatController: require('./chat.controller')
+  ChatController: require('./chat.controller'),
+  StatusController: require('./status.controller')
 }

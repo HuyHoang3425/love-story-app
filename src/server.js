@@ -12,7 +12,7 @@ const socket = require('./socket')
 const { response } = require('./utils')
 const { errorConverter, errorHandler } = require('./middlewares')
 const { env, logger, connectDB, morganMiddleware } = require('./config')
-const { dailyMission, dailyQuestion, decreasePetHunger } = require('./jobs')
+const { dailyMission, dailyQuestion, decreasePetHunger, dailyStatus } = require('./jobs')
 
 const app = express()
 
@@ -82,7 +82,8 @@ cron.schedule(
       dailyMission.generateDailyMissionsTomorrow(),
       dailyQuestion.generateDailyQuestionTomorrow(),
       dailyMission.deleteUncompletedMissions(),
-      dailyQuestion.deleteUncompletedQuestions()
+      dailyQuestion.deleteUncompletedQuestions(),
+      dailyStatus.generateDailyStatusTomorrow()
     ])
   },
   {
