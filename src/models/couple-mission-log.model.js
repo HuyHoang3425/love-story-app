@@ -16,7 +16,8 @@ const coupleMissionLogSchema = new mongoose.Schema(
     date: Date,
     countCompleted: {
       type: Number,
-      default: 0
+      default: 0,
+      max:2,
     },
     isCompleted: {
       type: Boolean,

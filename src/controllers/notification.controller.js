@@ -11,7 +11,10 @@ const getNot = catchAsync(async (req, res) => {
   const skip = (+page - 1) * +limit
 
   const [nots, totalNots] = await Promise.all([
-    Notification.find({ coupleId: user.coupleId }).skip(skip).limit(+limit).sort({ createdAt: -1 }),
+    Notification.find({ coupleId: user.coupleId, fromUserId: { $ne: user.id } })
+      .skip(skip)
+      .limit(+limit)
+      .sort({ createdAt: -1 }),
     Notification.countDocuments({ coupleId: user.coupleId })
   ])
 

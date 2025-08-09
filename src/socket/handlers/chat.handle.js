@@ -3,6 +3,7 @@ const { ChatValidation } = require('../../validations')
 const sendNot = require('./notification.handle')
 const { Notification } = require('../../models')
 const { completeDailyMission } = require('../../services')
+const { uploadImage } = require('../../utils/uploadImage')
 
 const chat = (io, socket) => {
   let roomChatId
@@ -37,6 +38,12 @@ const chat = (io, socket) => {
     }
 
     try {
+      //  let imageUrls = [] 
+      //  if (value.images.length > 0) {
+      //    const imageUrl = await uploadImage(value.images)
+      //    console.log('chuyển ảnh thành công')
+      //    imageUrls.push(imageUrl) // chỉ 1 ảnh
+      //  }
       const message = await Message.create({
         roomChatId,
         senderId: socket.user.id,

@@ -10,7 +10,9 @@ const {
   DailyQuestion,
   RoomChat,
   FeedingLog,
-  Notification
+  Notification,
+  DailyStatus,
+  Message
 } = require('../models/index')
 const socketCouple = require('../socket/handlers/couple.handle')
 const socket = require('../socket')
@@ -129,10 +131,16 @@ const disconnect = catchAsync(async (req, res) => {
 
   const userB = await User.findById(couple.userIdA.toString() === id ? couple.userIdB : couple.userIdA)
 
+  let roomChatId = null
+  const roomChat = await RoomChat.findOne({ coupleId: couple._id })
+  if(roomChat){
+    roomChatId = roomChat._id
+  }
   await RoomChat.deleteOne({ coupleId: userA.coupleId })
 
   userA.coupleId = undefined
   userB.coupleId = undefined
+
   await Promise.all([
     userA.save(),
     userB.save(),
@@ -142,9 +150,11 @@ const disconnect = catchAsync(async (req, res) => {
     DailyQuestion.deleteMany({ coupleId: couple._id }),
     Couple.deleteOne({ _id: couple.id }),
     Notification.deleteMany({ coupleId: couple._id }),
-    FeedingLog.deleteMany({ coupleId: couple._id })
+    FeedingLog.deleteMany({ coupleId: couple._id }),
+    DailyStatus.deleteMany({ coupleId: couple._id }),
+    Message.deleteMany({ roomChatId : roomChatId})
   ])
-
+  
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Huỷ kết nối thành công.'))
 })
 

@@ -64,7 +64,9 @@ const completeDailyMission = async (userId, coupleId, key) => {
       await UserMissionLog.create(newLogData)
 
       coupleMission.isCompleted = true
-      coupleMission.countCompleted += 1
+       if (coupleMission.countCompleted < 1) {
+         coupleMission.countCompleted += 1
+       }
       couple.coin += mission.coin
       const data = {
         coin: couple.coin
@@ -81,15 +83,16 @@ const completeDailyMission = async (userId, coupleId, key) => {
       })
     }
 
-    if (isUserA && !log.userIdACompleted) {
+    if (isUserA && !log.userIdACompleted && coupleMission.countCompleted < 2) {
       log.userIdACompleted = userId
       log.userACompletedAt = dayjs().tz(time.vn_tz).toDate()
-    } else if (isUserB && !log.userIdBCompleted) {
+      coupleMission.countCompleted += 1
+    } else if (isUserB && !log.userIdBCompleted && coupleMission.countCompleted < 2) {
       log.userIdBCompleted = userId
       log.userBCompletedAt = dayjs().tz(time.vn_tz).toDate()
+      coupleMission.countCompleted += 1
     }
 
-    coupleMission.countCompleted += 1
     await Promise.all([log.save(), coupleMission.save()])
 
     if (log.userIdACompleted && log.userIdBCompleted) {

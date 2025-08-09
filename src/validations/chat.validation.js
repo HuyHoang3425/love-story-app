@@ -1,11 +1,11 @@
 const joi = require('joi')
 
 const message = joi.object({
-  senderId: joi.string().required(),
+  senderId: joi.string(),
   toUserId: joi.string().required(),
   coupleId: joi.string().required(),
   content: joi.string().max(2000).allow('', null),
-  images: joi.array().items(joi.string()).default([])
+  images: joi.array(),
 })
 
 module.exports = {
