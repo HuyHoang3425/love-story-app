@@ -5,7 +5,7 @@ const message = joi.object({
   toUserId: joi.string().required(),
   coupleId: joi.string().required(),
   content: joi.string().max(2000).allow('', null),
-  images: joi.array(),
+  images: joi.array()
 })
 
 module.exports = {

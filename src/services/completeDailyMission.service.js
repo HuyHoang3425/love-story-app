@@ -64,9 +64,9 @@ const completeDailyMission = async (userId, coupleId, key) => {
       await UserMissionLog.create(newLogData)
 
       coupleMission.isCompleted = true
-       if (coupleMission.countCompleted < 1) {
-         coupleMission.countCompleted += 1
-       }
+      if (coupleMission.countCompleted < 1) {
+        coupleMission.countCompleted += 1
+      }
       couple.coin += mission.coin
       const data = {
         coin: couple.coin

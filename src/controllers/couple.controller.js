@@ -133,7 +133,7 @@ const disconnect = catchAsync(async (req, res) => {
 
   let roomChatId = null
   const roomChat = await RoomChat.findOne({ coupleId: couple._id })
-  if(roomChat){
+  if (roomChat) {
     roomChatId = roomChat._id
   }
   await RoomChat.deleteOne({ coupleId: userA.coupleId })
@@ -152,9 +152,9 @@ const disconnect = catchAsync(async (req, res) => {
     Notification.deleteMany({ coupleId: couple._id }),
     FeedingLog.deleteMany({ coupleId: couple._id }),
     DailyStatus.deleteMany({ coupleId: couple._id }),
-    Message.deleteMany({ roomChatId : roomChatId})
+    Message.deleteMany({ roomChatId: roomChatId })
   ])
-  
+
   res.status(StatusCodes.OK).json(response(StatusCodes.CREATED, 'Huỷ kết nối thành công.'))
 })
 

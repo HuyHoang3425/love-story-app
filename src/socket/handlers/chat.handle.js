@@ -38,7 +38,7 @@ const chat = (io, socket) => {
     }
 
     try {
-      //  let imageUrls = [] 
+      //  let imageUrls = []
       //  if (value.images.length > 0) {
       //    const imageUrl = await uploadImage(value.images)
       //    console.log('chuyển ảnh thành công')
